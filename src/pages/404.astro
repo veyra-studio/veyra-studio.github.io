@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro'
+import { content } from '../i18n/content'
+const en = content.en.notFound
+const fa = content.fa.notFound
+---
+
+<Base lang="en" title="404 — Veyra Studio" noindex>
+  <main class="not-found" id="main">
+    <svg class="nf-thread" viewBox="0 0 400 120" aria-hidden="true">
+      <path d="M0 60 C 60 10, 120 110, 180 60 S 300 10, 330 70 Q 350 110, 372 92" />
+    </svg>
+    <h1>{en.title}</h1>
+    <p>{en.body}</p>
+    <p><a class="btn btn-solid" href="/">{en.home}</a></p>
+    <div lang="fa" dir="rtl" class="nf-fa">
+      <h2>{fa.title}</h2>
+      <p>{fa.body}</p>
+      <p><a class="btn btn-line" href="/fa/">{fa.home}</a></p>
+    </div>
+  </main>
+</Base>
