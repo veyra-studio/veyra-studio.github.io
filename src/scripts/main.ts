@@ -4,6 +4,7 @@
  */
 import { createStage, range, splitText, type Stage } from '@veyra/core'
 import { initDemos } from './demos'
+import { initNext } from './next'
 import { createVeil } from './veil'
 
 const html = document.documentElement
@@ -173,6 +174,7 @@ initNav(stage)
 void initHero(stage)
 initStatement(stage)
 initDemos(stage, lang === 'fa' ? { low: 'پایین', medium: 'متوسط', high: 'بالا' } : { low: 'low', medium: 'medium', high: 'high' })
+initNext(stage)
 initWork(stage)
 highlight()
 initLanguages()

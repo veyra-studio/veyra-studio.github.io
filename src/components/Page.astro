@@ -11,20 +11,30 @@ const other: Lang = lang === 'en' ? 'fa' : 'en'
 const fa = lang === 'fa'
 const digits = (s: string) => (fa ? s.replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]!).replace(/\./g, '٫') : s)
 const arrow = fa ? '←' : '→'
-const code = `import { createStage, scenePresets, splitText } from '@veyra/core'
+const two = (n: number) => digits(String(n).padStart(2, '0'))
+const scriptOf = (s: string): Lang => (/[\u0600-\u06FF]/.test(s) ? 'fa' : 'en')
+const code = `import {
+  createStage,
+  horizontal,
+  scenePresets,
+  splitText,
+} from '@veyra/core'
 
-const stage = createStage()          // one loop, smooth native scroll
+const stage = createStage()        // one loop, smooth native scroll
 const title = splitText('h1', { type: 'chars' })
 
 stage.scene('#story', {
-  ...scenePresets.pinned,             // pinned with CSS sticky
+  ...scenePresets.pinned,          // pinned with CSS sticky
   timeline: stage.timeline().fromTo(
     title.chars,
     { y: '1em', opacity: 0 },
     { y: '0em', opacity: 1 },
     { stagger: 0.03 },
   ),
-})`
+})
+
+// Sideways, in reading order (rightward in Persian)
+stage.use(horizontal('#gallery', { snap: true }))`
 ---
 
 <a class="skip-link" href="#main">{t.skip}</a>
@@ -147,6 +157,119 @@ stage.scene('#story', {
       }
     </ol>
   </section>
+
+  <section class="next" id="new" aria-labelledby="next-title">
+    <div class="next-pin">
+      <div class="next-head">
+        <p class="eyebrow">{t.next.kicker}</p>
+        <p class="next-count" aria-hidden="true"><span data-next-count>{two(1)}</span> / {two(t.next.panels.length + 1)}</p>
+      </div>
+      <ol class="next-track" data-next-track>
+        <li class="np np-intro" data-panel="intro">
+          <div class="np-meta">
+            <span class="np-index">{two(1)}</span>
+            <code class="np-api" dir="ltr" lang="en">horizontal()</code>
+          </div>
+          <h2 class="np-headline" id="next-title">{t.next.title}</h2>
+          <div class="np-intro-text">
+            <p>{t.next.intro}</p>
+            <p class="np-muted">{t.next.direction}</p>
+          </div>
+          <span class="np-cue" aria-hidden="true">{t.hero.scroll} <i>{arrow}</i></span>
+        </li>
+        {
+          t.next.panels.map((panel, i) => (
+            <li class={`np np-${panel.id}`} data-panel={panel.id}>
+              <div class="np-meta">
+                <span class="np-index">{two(i + 2)}</span>
+                <code class="np-api" dir="ltr" lang="en">{panel.api}</code>
+              </div>
+              <div class={`np-demo np-demo-${panel.id}`} data-demo={panel.id}>
+                {panel.id === 'kashida' && (
+                  <>
+                    <div class="kd-stage">
+                      <p class="kd-sample" lang="fa" dir="rtl">
+                        <span class="visually-hidden">{t.next.kashidaSample}</span>
+                        <span aria-hidden="true" data-kashida>{t.next.kashidaSample.split(' ').map((word, j) => (j ? <><br />{word}</> : word))}</span>
+                      </p>
+                    </div>
+                    <div class="kd-control">
+                      <label for="kd-range">{t.next.kashidaLabel}</label>
+                      <input id="kd-range" type="range" min="0" max="8" step="1" value="0" data-kashida-range />
+                      <output for="kd-range" data-kashida-level>{digits('0')}</output>
+                    </div>
+                  </>
+                )}
+                {panel.id === 'drag' && (
+                  <div class="dg-viewport">
+                    <div class="dg-track" tabindex="0" role="group" aria-label={t.next.dragLabel} data-drag-track>
+                      {t.next.dragCards.map((word, j) => (
+                        <div class="dg-card">
+                          <span class="dg-no">{two(j + 1)}</span>
+                          <strong>{word}</strong>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {panel.id === 'flip' && (
+                  <>
+                    <ul class="fl-grid" aria-hidden="true" data-flip-grid>
+                      {Array.from({ length: 12 }, (_, j) => (
+                        <li class:list={[{ 'is-big': j === 0, 'is-light': j % 5 === 2 }]}>{digits(String(j + 1))}</li>
+                      ))}
+                    </ul>
+                    <button type="button" class="np-btn" data-flip-shuffle>{t.next.flipShuffle}</button>
+                  </>
+                )}
+                {panel.id === 'pointer' && (
+                  <>
+                    <div class="pt-card" aria-hidden="true" data-tilt>
+                      <span class="pt-card-api" dir="ltr" lang="en">tilt()</span>
+                      <strong>{t.next.tiltCard}</strong>
+                    </div>
+                    <a class="pt-magnet" href={`${links.core}/tree/main/examples/interaction`} data-magnet>
+                      <span>{t.next.magnet} <span aria-hidden="true">↗</span></span>
+                    </a>
+                  </>
+                )}
+                {panel.id === 'scramble' && (
+                  <>
+                    <div class="sc-lines">
+                      {t.next.scrambleLines.map((line) => (
+                        <p class="sc-line" lang={scriptOf(line)} dir={scriptOf(line) === 'fa' ? 'rtl' : 'ltr'}>
+                          <span class="visually-hidden">{line}</span>
+                          <span aria-hidden="true" data-scramble>{line}</span>
+                        </p>
+                      ))}
+                    </div>
+                    <button type="button" class="np-btn np-replay" data-scramble-replay>{t.next.replay}</button>
+                  </>
+                )}
+                {panel.id === 'noise' && (
+                  <>
+                    <canvas class="nz-canvas" aria-hidden="true" data-noise />
+                    <p class="nz-fallback" data-noise-fallback hidden>{t.next.noWebgl}</p>
+                  </>
+                )}
+              </div>
+              <div class="np-text">
+                <h3 class="np-title">{panel.title}</h3>
+                <p class="np-body">{panel.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="next-bar" aria-hidden="true"><i data-next-bar /></div>
+    </div>
+  </section>
+
+  <div class="next-band" aria-hidden="true">
+    <div class="next-marquee" data-marquee>
+      <span class="nm-text">{t.next.marquee.split(' · ').map((part, j) => (j ? <><i>·</i>{part}</> : part))}</span>
+    </div>
+  </div>
 
   <section class="work" id="work">
     <header class="section-head">

@@ -839,6 +839,580 @@ html.veil-text .wordmark {
 }
 
 /* ------------------------------------------------------------------ */
+/* New in 0.2 — a horizontal row of live demos                         */
+/* ------------------------------------------------------------------ */
+/* Veyra sets the section's height; the pin sticks while the row travels. */
+.next {
+  position: relative;
+  background: var(--paper);
+}
+.next-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: clamp(0.8rem, 2vh, 1.4rem);
+  padding-block: calc(var(--nav-h) + 0.4rem) clamp(1rem, 3vh, 1.8rem);
+}
+.next-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding-inline: var(--gutter);
+}
+.next-count {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.next-count span {
+  color: var(--ink);
+}
+:root:lang(fa) .next-count {
+  font-family: var(--text);
+  font-size: 0.95rem;
+}
+.next-track {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--gutter);
+  display: flex;
+  align-items: center;
+  gap: clamp(0.9rem, 2vw, 2rem);
+  width: max-content;
+  height: 100%;
+}
+.next-bar {
+  margin-inline: var(--gutter);
+  height: 1px;
+  background: var(--line);
+}
+.next-bar i {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  transform-origin: left center;
+  scale: var(--p, 0) 1;
+}
+:root:lang(fa) .next-bar i {
+  transform-origin: right center;
+}
+
+/* Panels: text beside the demo (stacked on phones). */
+.np {
+  flex: 0 0 auto;
+  width: min(86vw, 62rem);
+  height: min(100%, 38rem);
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 1.4rem clamp(1.4rem, 3vw, 3rem);
+  padding: clamp(1.1rem, 2.2vw, 2rem);
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--paper);
+  line-height: 1.55;
+}
+:root:lang(fa) .np {
+  line-height: 1.9;
+}
+.np-drag,
+.np-pointer {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+.np-meta {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+.np-index {
+  color: var(--signal);
+}
+:root:lang(fa) .np-index {
+  font-family: var(--text);
+  font-size: 0.92rem;
+}
+.np-api {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  opacity: 0.66;
+}
+.np-text {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: end;
+  min-width: 0;
+}
+.np-demo {
+  grid-column: 2;
+  grid-row: 2;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  container-type: size;
+  border-radius: 6px;
+}
+.np-title {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(1.8rem, 3vw, 3.2rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+:root:lang(fa) .np-title {
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0;
+  font-size: clamp(1.6rem, 2.6vw, 2.8rem);
+}
+.np-body {
+  margin: 0.9rem 0 0;
+  max-width: 30rem;
+  font-size: 0.96rem;
+  color: rgb(241 237 228 / 0.72);
+}
+.np-drag .np-body,
+.np-pointer .np-body {
+  color: var(--ink-2);
+}
+.np-btn {
+  padding: 0.7rem 1.2rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+.np-btn:hover {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--ink);
+}
+:root:lang(fa) .np-btn {
+  font-family: var(--text);
+  font-size: 0.92rem;
+  text-transform: none;
+}
+html[data-reduced-motion] .np-replay {
+  display: none;
+}
+
+/* 01 · the row itself */
+.np-intro {
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  padding-inline: 0;
+  background: transparent;
+  color: var(--ink);
+}
+.np-headline {
+  grid-column: 1 / -1;
+  align-self: center;
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(3.2rem, 8.4vw, 9rem);
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+}
+:root:lang(fa) .np-headline {
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0;
+  font-size: clamp(2.8rem, 7vw, 7.4rem);
+}
+.np-intro-text {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  align-items: end;
+}
+.np-intro-text p {
+  margin: 0;
+  max-width: 28rem;
+  color: var(--ink-2);
+}
+.np-intro-text .np-muted {
+  color: var(--muted);
+}
+.np-cue {
+  grid-column: 1 / -1;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+:root:lang(fa) .np-cue {
+  font-family: var(--text);
+  font-size: 0.9rem;
+  text-transform: none;
+}
+.np-cue i {
+  font-style: normal;
+  color: var(--signal);
+  animation: cue-ltr 1.8s var(--ease-drift) infinite;
+}
+:root:lang(fa) .np-cue i {
+  animation-name: cue-rtl;
+}
+@keyframes cue-ltr {
+  50% {
+    translate: 0.45rem 0;
+  }
+}
+@keyframes cue-rtl {
+  50% {
+    translate: -0.45rem 0;
+  }
+}
+
+/* 02 · kashida */
+.np-demo-kashida {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 1rem;
+}
+.kd-stage {
+  container-type: size;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgb(241 237 228 / 0.1);
+  border-radius: 6px;
+  background: rgb(241 237 228 / 0.035);
+}
+.kd-sample {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: min(8rem, 17cqi, 30cqb);
+  line-height: 1.35;
+  text-align: center;
+  white-space: nowrap;
+}
+.kd-control {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 2.4em;
+  align-items: center;
+  gap: 1rem;
+}
+.kd-control label {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: rgb(241 237 228 / 0.62);
+}
+:root:lang(fa) .kd-control label {
+  font-family: var(--text);
+  font-size: 0.9rem;
+  text-transform: none;
+}
+.kd-control input {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--signal);
+}
+.kd-control output {
+  font-family: var(--mono);
+  color: var(--signal);
+  text-align: end;
+}
+:root:lang(fa) .kd-control output {
+  font-family: var(--text);
+}
+
+/* 03 · drag */
+.dg-viewport {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 6px;
+  cursor: grab;
+}
+.dg-viewport:active {
+  cursor: grabbing;
+}
+.dg-track {
+  display: flex;
+  gap: 0.9rem;
+  width: max-content;
+  height: min(100%, 24rem);
+  outline-offset: -3px;
+}
+.dg-card {
+  flex: 0 0 auto;
+  width: clamp(8.5rem, 40cqi, 16rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.1rem 1.2rem;
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--paper);
+  user-select: none;
+}
+.dg-card:nth-child(3n + 2) {
+  background: var(--signal);
+  color: var(--ink);
+}
+.dg-card:nth-child(3n) {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.dg-no {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+:root:lang(fa) .dg-no {
+  font-family: var(--text);
+  font-size: 0.95rem;
+}
+.dg-card strong {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(1.8rem, 9cqi, 3.4rem);
+  line-height: 1;
+}
+:root:lang(fa) .dg-card strong {
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* 04 · FLIP */
+.np-demo-flip {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  align-items: center;
+  gap: 1rem;
+}
+.fl-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: min(100cqi, calc(100cqb - 4.2rem));
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  gap: 0.5rem;
+}
+.fl-grid li {
+  display: grid;
+  place-items: center;
+  border: 1px solid rgb(241 237 228 / 0.16);
+  border-radius: 5px;
+  font-family: var(--mono);
+  font-size: min(1.3rem, 4.5cqi);
+  color: rgb(241 237 228 / 0.8);
+}
+:root:lang(fa) .fl-grid li {
+  font-family: var(--text);
+}
+.fl-grid li.is-light {
+  border-color: transparent;
+  background: var(--paper);
+  color: var(--ink);
+}
+.fl-grid li.is-big {
+  grid-column: span 2;
+  grid-row: span 2;
+  border-color: transparent;
+  background: var(--signal);
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: min(5rem, 15cqi);
+}
+
+/* 05 · magnetic · tilt */
+.np-demo-pointer {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  justify-items: center;
+  gap: 1rem;
+}
+.pt-card {
+  position: relative;
+  width: min(100%, 17rem, 72cqb);
+  aspect-ratio: 3 / 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.2rem;
+  overflow: hidden;
+  border-radius: 10px;
+  background: linear-gradient(160deg, #34312b, var(--ink) 72%);
+  color: var(--paper);
+  box-shadow: 0 1.6rem 3rem -1.8rem rgb(19 19 17 / 0.55);
+}
+.pt-card-api {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  opacity: 0.7;
+}
+.pt-card strong {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 7cqi, 2.4rem);
+  line-height: 1.05;
+}
+:root:lang(fa) .pt-card strong {
+  font-weight: 600;
+  line-height: 1.45;
+}
+.pt-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at calc(var(--tilt-x, 0.5) * 100%) calc(var(--tilt-y, 0.5) * 100%), rgb(255 255 255 / 0.26), transparent 55%);
+  opacity: var(--tilt-active, 0);
+}
+.pt-magnet {
+  display: grid;
+  place-items: center;
+  width: min(10rem, 44cqi);
+  aspect-ratio: 1;
+  padding: 1rem;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  text-align: center;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.3;
+  transition: background-color 0.35s ease;
+}
+.pt-magnet:hover {
+  background: var(--signal-ink);
+}
+.pt-magnet > span {
+  display: inline-block;
+  pointer-events: none;
+}
+
+/* 06 · scramble */
+.np-demo-scramble {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: start;
+  gap: 1rem;
+}
+.sc-lines {
+  align-self: center;
+  justify-self: stretch;
+  display: grid;
+  gap: 0.5rem;
+}
+.sc-line {
+  margin: 0;
+  font-family: var(--display);
+  font-size: min(4.6rem, 11.5cqi);
+  line-height: 1.05;
+  /* Both scripts align to the panel's start edge. */
+  text-align: left;
+}
+:root:lang(fa) .sc-line {
+  text-align: right;
+}
+.sc-line[lang='fa'] {
+  font-weight: 600;
+  line-height: 1.5;
+}
+.sc-line + .sc-line {
+  font-size: min(3rem, 7.5cqi);
+  color: rgb(241 237 228 / 0.55);
+}
+
+/* 07 · noise and GLSL */
+.np-demo-noise {
+  overflow: hidden;
+  background: var(--ink);
+}
+.np-demo-noise[data-state='fallback'] {
+  background:
+    radial-gradient(circle at 62% 42%, var(--signal) 0 21%, transparent 21.5%),
+    repeating-radial-gradient(circle at 40% 60%, rgb(241 237 228 / 0.14) 0 1px, transparent 1px 22px),
+    var(--ink);
+}
+.nz-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.nz-fallback {
+  position: absolute;
+  inset: auto 1rem 1rem;
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgb(241 237 228 / 0.7);
+}
+.nz-fallback[hidden] {
+  display: none;
+}
+
+/* The band after the row: runs in the reading direction. */
+.next-band {
+  padding-block: clamp(1.5rem, 5vh, 3.5rem);
+  border-block: 1px solid var(--line);
+  overflow: hidden;
+}
+.nm-text {
+  white-space: nowrap;
+  padding-inline-end: 0.35em;
+  font-family: var(--display);
+  font-size: clamp(2.8rem, 8vw, 8rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+:root:lang(fa) .nm-text {
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0;
+}
+.nm-text i {
+  padding-inline: 0.25em;
+  font-style: normal;
+  color: var(--signal);
+}
+
+/* ------------------------------------------------------------------ */
 /* Work                                                                */
 /* ------------------------------------------------------------------ */
 .work {
@@ -1410,6 +1984,29 @@ html:active-view-transition-type(to-en)::view-transition-old(root) {
     grid-template-columns: 1fr;
     gap: 0;
   }
+  .np {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 1rem;
+  }
+  .np-demo,
+  .np-text {
+    grid-column: 1;
+  }
+  .np-text {
+    grid-row: 3;
+  }
+  .np-intro {
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+  }
+  .np-intro-text {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+  .np-body {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+  }
   .footer {
     grid-template-columns: 1fr;
   }
@@ -1429,5 +2026,8 @@ html:active-view-transition-type(to-en)::view-transition-old(root) {
   }
   .btn:hover {
     transform: none;
+  }
+  .np-cue i {
+    animation: none;
   }
 }

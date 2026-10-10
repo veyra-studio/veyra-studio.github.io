@@ -66,6 +66,212 @@ const at = (page, sel, frac = 0) =>
     window.scrollTo(0, el.getBoundingClientRect().top + scrollY + el.offsetHeight * f)
   }, [sel, frac])
 
+// ---------------------------------------------------------------------
+// The "New in 0.2" row: a horizontal section of live demos.
+// ---------------------------------------------------------------------
+const xOf = (page, sel) => page.$eval(sel, (el) => new DOMMatrix(getComputedStyle(el).transform).m41)
+const identity = (page, sel) => page.$eval(sel, (el) => new DOMMatrix(getComputedStyle(el).transform).isIdentity)
+
+/** Scrolls so the row travels by `progress` (0…1) of its length. */
+const rowAt = (page, progress) =>
+  page.evaluate((p) => {
+    const s = document.querySelector('#new')
+    window.scrollTo(0, s.getBoundingClientRect().top + scrollY + (s.offsetHeight - s.firstElementChild.offsetHeight) * p)
+  }, progress)
+
+/** Scrolls so panel `id` rests where the first panel rests (as snapping would). */
+const toPanel = (page, id) =>
+  page.evaluate((id) => {
+    const section = document.querySelector('#new')
+    const pin = section.firstElementChild
+    const track = section.querySelector('[data-next-track]')
+    const panels = [...track.children]
+    const rtl = getComputedStyle(track).direction === 'rtl'
+    const edge = (el) => (rtl ? el.offsetLeft + el.offsetWidth : el.offsetLeft)
+    const distance = track.scrollWidth - pin.clientWidth
+    const panel = panels.find((el) => el.dataset.panel === id)
+    const stop = Math.min(distance, Math.abs(edge(panel) - edge(panels[0])))
+    window.scrollTo(0, section.getBoundingClientRect().top + scrollY + (stop / distance) * (section.offsetHeight - pin.offsetHeight))
+  }, id)
+
+const inView = (page, id) =>
+  page.$eval(`[data-panel="${id}"]`, (el) => {
+    const r = el.getBoundingClientRect()
+    return r.left >= -1 && r.right <= innerWidth + 1 && r.top >= -1 && r.bottom <= innerHeight + 1
+  })
+
+async function checkNext(page, lang, device) {
+  const rtl = lang === 'fa'
+  const shot = (name) => page.screenshot({ path: `${OUT}${lang}-${device}-new-${name}.png` })
+
+  // The row is a horizontal section: tall, pinned, moving along the reading direction.
+  await rowAt(page, 0)
+  await page.waitForTimeout(900)
+  await shot('intro')
+  await rowAt(page, 0.5)
+  await page.waitForTimeout(1500)
+  const mid = await page.evaluate((rtl) => {
+    const track = document.querySelector('[data-next-track]')
+    const pin = track.parentElement.getBoundingClientRect()
+    const inset = parseFloat(getComputedStyle(track).paddingInlineStart)
+    const snapped = [...track.children].some((el) => {
+      const r = el.getBoundingClientRect()
+      return Math.abs(rtl ? pin.right - r.right - inset : r.left - pin.left - inset) < 2
+    })
+    return { x: new DOMMatrix(getComputedStyle(track).transform).m41, snapped, count: document.querySelector('[data-next-count]').textContent }
+  }, rtl)
+  ;(rtl ? mid.x > 100 : mid.x < -100) ? pass(`0.2 row travels ${rtl ? 'rightward' : 'leftward'} (x ${Math.round(mid.x)}px)`) : fail(`0.2 row x ${mid.x}`)
+  mid.snapped ? pass('0.2 row settles on a panel') : fail('0.2 row did not snap to a panel')
+  const digits = rtl ? /^[۰-۹]{2}$/ : /^[0-9]{2}$/
+  digits.test(mid.count) && !/^(01|۰۱)$/.test(mid.count) ? pass(`counter reads ${mid.count}`) : fail(`counter reads ${mid.count}`)
+  const crowded = await page.$$eval('.np', (panels) =>
+    panels
+      .filter((p) => {
+        const r = p.getBoundingClientRect()
+        const spill = [...p.querySelectorAll('.np-text, .np-intro-text, .np-cue')].some((t) => t.getBoundingClientRect().bottom > r.bottom + 1)
+        const squeezed = [...p.querySelectorAll('.np-demo')].some((d) => d.getBoundingClientRect().height < 120)
+        return spill || squeezed
+      })
+      .map((p) => p.dataset.panel),
+  )
+  crowded.length ? fail(`0.2 panels overflow: ${crowded.join(', ')}`) : pass('every 0.2 panel fits its text and demo')
+
+  if (device === 'mobile') {
+    await toPanel(page, 'flip')
+    await page.waitForTimeout(1800)
+    await shot('flip')
+    await toPanel(page, 'noise')
+    await page.waitForTimeout(1500)
+    await shot('noise')
+    return
+  }
+
+  // Kashida: focus pulls the panel into view; the slider stretches the words (8 tatweels per word).
+  await page.focus('[data-kashida-range]')
+  await page.waitForTimeout(1600)
+  ;(await inView(page, 'kashida')) ? pass('focus brings an offscreen panel into view') : fail('focused panel stayed offscreen')
+  await page.keyboard.press('End')
+  await page.waitForTimeout(250)
+  const k = await page.evaluate(() => ({
+    shown: document.querySelector('[data-kashida]').textContent,
+    spoken: document.querySelector('.kd-sample .visually-hidden').textContent,
+    level: document.querySelector('[data-kashida-level]').textContent,
+  }))
+  const tatweels = (k.shown.match(/\u0640/g) ?? []).length
+  tatweels === 16 && !k.spoken.includes('\u0640') && k.level === (rtl ? '۸' : '8')
+    ? pass(`kashida slider stretches the words (${tatweels} tatweels, accessible text intact)`)
+    : fail(`kashida: ${tatweels} tatweels, level ${k.level}, spoken “${k.spoken}”`)
+  await shot('kashida')
+
+  // Drag: an arrow key steps to the next card; a throw lands on a card.
+  await page.focus('[data-drag-track]')
+  await page.waitForTimeout(1600)
+  const d0 = await xOf(page, '[data-drag-track]')
+  await page.keyboard.press(rtl ? 'ArrowLeft' : 'ArrowRight')
+  await page.waitForTimeout(1200)
+  const d1 = await xOf(page, '[data-drag-track]')
+  ;(rtl ? d1 > d0 + 50 : d1 < d0 - 50) ? pass(`arrow key steps the carousel (${Math.round(d0)} → ${Math.round(d1)}px)`) : fail(`carousel key step ${d0} → ${d1}`)
+  const vp = await page.locator('.dg-viewport').boundingBox()
+  await page.mouse.move(vp.x + vp.width / 2, vp.y + vp.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(vp.x + vp.width / 2 + (rtl ? 170 : -170), vp.y + vp.height / 2, { steps: 6 })
+  await page.mouse.up()
+  await page.waitForTimeout(1800)
+  const d2 = await xOf(page, '[data-drag-track]')
+  await page.waitForTimeout(200)
+  const d3 = await xOf(page, '[data-drag-track]')
+  // At rest a card's start edge meets the carousel's start edge, or the row sits at its end bound.
+  const vpNow = await page.locator('.dg-viewport').boundingBox()
+  const restsOnCard = await page.$$eval(
+    '.dg-card',
+    (els, [rtl, left, right]) => {
+      const starts = (r) => Math.abs(rtl ? r.right - right : r.left - left) < 1.5
+      const last = els[els.length - 1].getBoundingClientRect()
+      return els.some((el) => starts(el.getBoundingClientRect())) || Math.abs(rtl ? last.left - left : last.right - right) < 1.5
+    },
+    [rtl, vpNow.x, vpNow.x + vpNow.width],
+  )
+  ;(rtl ? d2 > d1 : d2 < d1) && d2 === d3 && restsOnCard ? pass(`a throw coasts and rests on a card (${Math.round(d2)}px)`) : fail(`drag throw ${d1} → ${d2}/${d3}, on card: ${restsOnCard}`)
+
+  // FLIP: shuffling moves the tiles, then they settle with no transform left.
+  await page.focus('[data-flip-shuffle]')
+  await page.waitForTimeout(2400)
+  const order = () => page.$$eval('[data-flip-grid] li', (els) => els.map((el) => el.textContent).join(','))
+  const before = await order()
+  await page.click('[data-flip-shuffle]')
+  await page.waitForTimeout(140)
+  const moving = await page.$$eval('[data-flip-grid] li', (els) => els.some((el) => !new DOMMatrix(getComputedStyle(el).transform).isIdentity))
+  await page.waitForTimeout(1500)
+  const after = await order()
+  const settled = await page.$$eval('[data-flip-grid] li', (els) => els.every((el) => new DOMMatrix(getComputedStyle(el).transform).isIdentity))
+  before !== after && moving && settled ? pass('FLIP shuffle animates, then settles') : fail(`FLIP: changed ${before !== after}, moving ${moving}, settled ${settled}`)
+  // Whatever the order, every tile (the promoted 2×2 one too) stays square and inside the grid.
+  const fits = () =>
+    page.$eval('[data-flip-grid]', (grid) => {
+      const g = grid.getBoundingClientRect()
+      return [...grid.children].every((el) => {
+        const r = el.getBoundingClientRect()
+        const inside = r.top >= g.top - 1 && r.bottom <= g.bottom + 1 && r.left >= g.left - 1 && r.right <= g.right + 1
+        return inside && Math.abs(r.width - r.height) < 1.5
+      })
+    })
+  let contained = await fits()
+  for (let i = 0; i < 4; i++) {
+    await page.click('[data-flip-shuffle]')
+    await page.waitForTimeout(1250)
+    contained = contained && (await fits())
+  }
+  contained ? pass('FLIP tiles stay square and inside the grid across shuffles') : fail('a FLIP tile was squashed or left the grid')
+  await shot('flip')
+
+  // Magnetic link and tilt card follow the pointer.
+  await page.focus('[data-magnet]')
+  await page.waitForTimeout(1600)
+  const m = await page.locator('[data-magnet]').boundingBox()
+  await page.mouse.move(m.x + m.width / 2 + 34, m.y + m.height / 2 + 22, { steps: 6 })
+  await page.waitForTimeout(700)
+  const pulled = !(await identity(page, '[data-magnet]'))
+  const c = await page.locator('[data-tilt]').boundingBox()
+  await page.mouse.move(c.x + c.width * 0.85, c.y + c.height * 0.2, { steps: 6 })
+  await page.waitForTimeout(700)
+  const tilted = !(await identity(page, '[data-tilt]'))
+  pulled && tilted ? pass('magnetic link and tilt card follow the pointer') : fail(`pointer demos: magnet ${pulled}, tilt ${tilted}`)
+  await shot('pointer')
+  await page.mouse.move(5, 5)
+
+  // Scramble: lines decode in their own script and settle on the real text.
+  await page.focus('[data-scramble-replay]')
+  await page.waitForTimeout(2800)
+  const lines = () => page.$$eval('.sc-line', (ps) => ps.map((p) => [p.querySelector('[data-scramble]').textContent, p.querySelector('.visually-hidden').textContent]))
+  const settledLines = (await lines()).every(([shown, real]) => shown === real)
+  await page.click('[data-scramble-replay]')
+  await page.waitForTimeout(150)
+  const flickering = (await lines()).some(([shown, real]) => shown !== real)
+  await page.waitForTimeout(2400)
+  const decoded = (await lines()).every(([shown, real]) => shown === real)
+  settledLines && flickering && decoded ? pass('scramble decodes and settles on the real text') : fail(`scramble: settled ${settledLines}, flicker ${flickering}, decoded ${decoded}`)
+
+  // GLSL: the shader compiles (or a still fallback replaces it without errors).
+  await toPanel(page, 'noise')
+  await page.waitForTimeout(1500)
+  const state = await page.$eval('[data-demo="noise"]', (el) => el.dataset.state ?? 'none')
+  state === 'ok' ? pass('GLSL chunks compile into the noise shader') : state === 'fallback' ? pass('no WebGL2 here: still fallback shown') : fail(`noise demo state ${state}`)
+  await shot('noise')
+
+  // The band after the row runs toward the line start: left in English, right in Persian.
+  await page.evaluate(() => {
+    const band = document.querySelector('.next-band')
+    window.scrollTo(0, band.getBoundingClientRect().top + scrollY - innerHeight * 0.4)
+  })
+  await page.waitForTimeout(700)
+  const b0 = await xOf(page, '[data-veyra-marquee-track]')
+  await page.waitForTimeout(600)
+  const b1 = await xOf(page, '[data-veyra-marquee-track]')
+  const db = b1 - b0
+  Math.abs(db) > 1000 || (rtl ? db > 2 : db < -2) ? pass(`marquee runs ${rtl ? 'rightward' : 'leftward'}`) : fail(`marquee moved ${db}px`)
+  await shot('band')
+}
+
 try {
   const browser = await chromium.launch()
   for (const [lang, path, dir] of [['en', '/', 'ltr'], ['fa', '/fa/', 'rtl']]) {
@@ -93,6 +299,9 @@ try {
         await page.screenshot({ path: `${OUT}${lang}-desktop-${name}.png` })
       }
       pass(`screenshots → verify-output/${lang}-desktop-*.png`)
+      const codeOverflow = await page.$eval('.code', (el) => el.scrollWidth - el.clientWidth)
+      codeOverflow <= 1 ? pass('code sample fits without scrolling') : fail(`code sample overflows by ${codeOverflow}px`)
+      await checkNext(page, lang, 'desktop')
       // The language switch leads to the other language.
       const other = lang === 'en' ? '/fa/' : '/'
       await at(page, '#top', 0)
@@ -109,6 +318,7 @@ try {
         await page.screenshot({ path: `${OUT}${lang}-mobile-${name}.png` })
       }
       pass(`screenshots → verify-output/${lang}-mobile-*.png`)
+      await checkNext(page, lang, 'mobile')
     })
   }
   await visit(browser, 'Reduced motion EN', '/', { viewport: { width: 1280, height: 800 }, reducedMotion: 'reduce' }, async (page) => {
@@ -118,6 +328,22 @@ try {
     await page.waitForTimeout(800)
     const t = await page.$eval('.st-line [style*="transform"]', (el) => el.style.transform).catch(() => 'none')
     t.includes('0%') || t === 'none' ? pass('statement readable without motion') : fail(`statement transform ${t}`)
+    await toPanel(page, 'kashida')
+    await page.waitForTimeout(1500)
+    const stretched = await page.$eval('[data-kashida]', (el) => el.textContent.includes('\u0640'))
+    await toPanel(page, 'scramble')
+    await page.waitForTimeout(700)
+    const plain = await page.$$eval('.sc-line', (ps) => ps.every((p) => p.querySelector('[data-scramble]').textContent === p.querySelector('.visually-hidden').textContent))
+    const replay = await page.$eval('[data-scramble-replay]', (el) => getComputedStyle(el).display)
+    await page.evaluate(() => {
+      const band = document.querySelector('.next-band')
+      window.scrollTo(0, band.getBoundingClientRect().top + scrollY - innerHeight * 0.4)
+    })
+    await page.waitForTimeout(900)
+    const still = await identity(page, '[data-veyra-marquee-track]')
+    !stretched && plain && replay === 'none' && still
+      ? pass('0.2 demos hold still (no auto stretch or scramble, marquee at rest)')
+      : fail(`reduced motion: stretched ${stretched}, plain ${plain}, replay ${replay}, marquee still ${still}`)
   })
   await visit(browser, '404 page', '/does-not-exist/', { viewport: { width: 1280, height: 800 } }, async (page) => {
     const h1 = await page.textContent('h1')
