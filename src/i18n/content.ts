@@ -21,6 +21,15 @@ export interface Capability {
   hint?: string
 }
 
+/** A demo panel in the "New in 0.2" row (the row opens with an intro panel). */
+export interface NextPanel {
+  id: 'kashida' | 'drag' | 'flip' | 'pointer' | 'scramble' | 'noise'
+  /** The engine API the panel demonstrates (shown in code type). */
+  api: string
+  title: string
+  body: string
+}
+
 export interface Content {
   lang: Lang
   dir: 'ltr' | 'rtl'
@@ -48,6 +57,24 @@ export interface Content {
     typeNaive: string
     typeVeyra: string
     scrollProgress: string
+  }
+  next: {
+    kicker: string
+    title: string
+    intro: string
+    direction: string
+    panels: NextPanel[]
+    kashidaSample: string
+    kashidaLabel: string
+    dragCards: string[]
+    dragLabel: string
+    flipShuffle: string
+    magnet: string
+    tiltCard: string
+    scrambleLines: [string, string]
+    replay: string
+    noWebgl: string
+    marquee: string
   }
   work: {
     kicker: string
@@ -117,6 +144,31 @@ export const en: Content = {
     typeNaive: 'Naive split',
     typeVeyra: 'Veyra split',
     scrollProgress: 'This section’s progress',
+  },
+  next: {
+    kicker: 'New in 0.2',
+    title: 'More ways to move.',
+    intro: 'Every panel in this row is the new release at work — and so is the row: scroll down and it travels sideways.',
+    direction: 'On the Persian page it moves the other way, rightward, so the panels still arrive in reading order.',
+    panels: [
+      { id: 'kashida', api: 'kashida()', title: 'Kashida, the calligrapher’s stretch', body: 'Persian words lengthen where a calligrapher would stretch them: after seen and sheen, then on the last join — never inside lam-alef, never across a zero-width non-joiner.' },
+      { id: 'drag', api: 'draggable()', title: 'Throw it', body: 'Inertia, edges that push back, and snap points that keep the speed of the throw. Arrow keys move one card at a time.' },
+      { id: 'flip', api: 'flip()', title: 'Layouts that travel', body: 'Change the layout any way you like; every element glides from where it was to where it lands.' },
+      { id: 'pointer', api: 'magnetic() · tilt()', title: 'Things that lean in', body: 'Magnetic buttons and tilting cards, on springs. They switch off on touch screens and for reduced motion.' },
+      { id: 'scramble', api: 'scrambleText()', title: 'Decode', body: 'Text settles out of noise in its own script: Persian flickers in Persian letters and stays joined.' },
+      { id: 'noise', api: '@veyra/core/glsl', title: 'Noise and light', body: 'Seeded noise for organic motion, and GLSL building blocks — noise, distance fields, OKLab color — for shaders like this one.' },
+    ],
+    kashidaSample: 'کشیده بنویس',
+    kashidaLabel: 'Stretch',
+    dragCards: ['Throw', 'Catch', 'Resist', 'Snap', 'Step', 'Rest'],
+    dragLabel: 'Cards. Use the arrow keys to move.',
+    flipShuffle: 'Shuffle',
+    magnet: 'See the code',
+    tiltCard: 'Leans toward you',
+    scrambleLines: ['Decoded, letter by letter', 'حرف به حرف، رمزگشایی'],
+    replay: 'Replay',
+    noWebgl: 'This browser doesn’t offer WebGL2.',
+    marquee: 'Veyra 0.2 — horizontal sections · kashida · drag & inertia · FLIP · magnetic · scramble · noise · GLSL —',
   },
   work: {
     kicker: 'Work',
@@ -207,6 +259,31 @@ export const fa: Content = {
     typeNaive: 'تقسیمِ ساده',
     typeVeyra: 'تقسیمِ ویرا',
     scrollProgress: 'پیشرفتِ همین بخش',
+  },
+  next: {
+    kicker: 'تازه‌های نسخهٔ ۰٫۲',
+    title: 'راه‌های تازه برای حرکت.',
+    intro: 'هر قابِ این ردیف، نسخهٔ تازه را در حالِ کار نشان می‌دهد — خودِ ردیف هم: به پایین اسکرول کنید تا به پهلو حرکت کند.',
+    direction: 'در صفحهٔ فارسی ردیف به سمتِ راست می‌رود تا قاب‌ها به ترتیبِ خواندن، از راست به چپ، از راه برسند؛ در صفحهٔ انگلیسی برعکس.',
+    panels: [
+      { id: 'kashida', api: 'kashida()', title: 'کشیده، کششِ خوشنویس', body: 'واژه‌ها همان‌جایی کشیده می‌شوند که خوشنویس می‌کشد: اول بعد از سین و شین، بعد روی آخرین اتصال؛ هرگز درونِ «لا» و هرگز از روی نیم‌فاصله.' },
+      { id: 'drag', api: 'draggable()', title: 'پرتابش کنید', body: 'اینرسی، لبه‌هایی که پس می‌زنند، و جاهایی برای نشستن که شتابِ پرتاب را از دست نمی‌دهند. کلیدهای جهت، کارت به کارت جابه‌جا می‌کنند.' },
+      { id: 'flip', api: 'flip()', title: 'چیدمانی که سفر می‌کند', body: 'چیدمان را هر طور خواستید عوض کنید؛ هر عنصر از جای قبلی‌اش تا جای تازه می‌لغزد.' },
+      { id: 'pointer', api: 'magnetic() · tilt()', title: 'چیزهایی که به سمتتان خم می‌شوند', body: 'دکمه‌های آهنربایی و کارت‌هایی که کج می‌شوند، با حرکتی فنری. روی صفحه‌های لمسی و در حالتِ «حرکتِ کمتر» خاموش‌اند.' },
+      { id: 'scramble', api: 'scrambleText()', title: 'رمزگشایی', body: 'متن از دلِ حروفِ تصادفیِ خطِ خودش بیرون می‌آید: فارسی با حروفِ فارسی می‌لرزد و پیوسته می‌ماند.' },
+      { id: 'noise', api: '@veyra/core/glsl', title: 'نویز و نور', body: 'نویزِ تکرارپذیر برای حرکت‌های طبیعی، و قطعه‌های آمادهٔ GLSL — نویز، میدان‌های فاصله، رنگِ OKLab — برای شیدرهایی مثل همین.' },
+    ],
+    kashidaSample: 'کشیده بنویس',
+    kashidaLabel: 'کشش',
+    dragCards: ['پرتاب', 'گرفتن', 'مقاومت', 'نشستن', 'گام', 'آرامش'],
+    dragLabel: 'کارت‌ها. با کلیدهای جهت جابه‌جا کنید.',
+    flipShuffle: 'بُر بزن',
+    magnet: 'کدش را ببینید',
+    tiltCard: 'به سمتِ شما خم می‌شود',
+    scrambleLines: ['حرف به حرف، رمزگشایی', 'Decoded, letter by letter'],
+    replay: 'دوباره',
+    noWebgl: 'این مرورگر WebGL2 ندارد.',
+    marquee: 'ویرا ۰٫۲ — اسکرولِ افقی · کشیده · پرتاب و اینرسی · فلیپ · آهنربا · رمزگشایی · نویز · GLSL —',
   },
   work: {
     kicker: 'کارها',

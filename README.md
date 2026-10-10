@@ -12,6 +12,7 @@ The site introduces the engine and its philosophy, runs the engine live (every d
 - **Concept — the veil.** The hero wordmark is woven: a warp of fine threads (spring chains on Veyra's frame loop) passes over and under the letters, which are drawn from the real HTML heading via `drawElementText`. Threads comb aside under the pointer and ripple with scroll velocity.
 - **Two scripts, designed separately.** English sets Instrument Serif with Geist; Persian sets Markazi Text with Vazirmatn — larger optical sizes, looser leading, no letter-spacing, Persian digits and decimal separator, RTL composition. Copy is written for each language, not machine-paired.
 - **Language switching** uses cross-document View Transitions: the new language wipes in along its own reading direction and the wordmark morphs between «ویرا» and “Veyra”. Browsers without support navigate normally.
+- **New in 0.2 — a row that travels.** The engine's 0.2 capabilities sit in a horizontal section (itself `horizontal()`): vertical scrolling moves seven panels sideways — leftward in English, rightward in Persian so they arrive in reading order — and settles on a panel. Each panel is a live demo: kashida stretching Persian words, a draggable carousel, a FLIP grid, a magnetic link and a tilt card, script-aware scrambling, and a WebGL2 shader built from `@veyra/core/glsl`. A marquee band follows, running in the reading direction. Under reduced motion nothing in it moves on its own.
 - **Restraint.** Paper, ink and one signal color; motion that explains (the engine demos) rather than decorates.
 
 ## Develop
@@ -38,6 +39,7 @@ src/pages/404.astro        bilingual not-found page
 src/scripts/main.ts        stage, nav, statement, language transitions
 src/scripts/veil.ts        the woven hero
 src/scripts/demos.ts       live engine demos
+src/scripts/next.ts        the "New in 0.2" row and its demos
 src/styles/global.css      design system for both scripts
 scripts/                   verify.mjs (browser checks), engine-stamp.mjs (writes dist/engine.json)
 ```
