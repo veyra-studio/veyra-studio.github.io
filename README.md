@@ -23,7 +23,7 @@ VEYRA_CORE_SRC=../veyra-core npm run dev   # live-develop the engine too
 npm run build               # astro check + static build into dist/
 npm run preview
 npm run verify              # Playwright checks of the production build → verify-output/
-npm run engine:update       # vendor the latest ../veyra-core release
+npm run engine:update       # move to the newest engine release
 ```
 
 ## Structure
@@ -39,12 +39,12 @@ src/scripts/main.ts        stage, nav, statement, language transitions
 src/scripts/veil.ts        the woven hero
 src/scripts/demos.ts       live engine demos
 src/styles/global.css      design system for both scripts
-vendor/veyra-core/         vendored Veyra Core release (see VENDORED.json)
+scripts/                   verify.mjs (browser checks), engine-stamp.mjs (writes dist/engine.json)
 ```
 
 ## Deploy
 
-GitHub Actions builds and deploys `dist/` on every push to `main` (`.github/workflows/deploy.yml`).
+GitHub Actions builds and deploys `dist/` on every push to `main` (`.github/workflows/deploy.yml`), always with the newest engine: the site depends on `"@veyra/core": "github:veyra-studio/veyra-core#release"`, the branch veyra-core's CI publishes from every green build, and records what it shipped in `/engine.json`. When the engine changes the site redeploys on its own — immediately on veyra-core's `engine-updated` dispatch (needs its optional `SITES_DISPATCH_TOKEN`), otherwise within the hour through a scheduled check. If a new engine breaks the build, the current site stays live.
 
 **One-time setup:** Settings → Pages → Build and deployment → Source: **GitHub Actions**. (As an organization `*.github.io` repository it defaults to "Deploy from a branch", which would publish the raw repository.)
 
