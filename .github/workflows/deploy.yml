@@ -1,0 +1,59 @@
+name: Deploy to GitHub Pages
+
+# Builds on every pull request (as a check) and deploys from main to
+# https://veyra-studio.github.io/
+#
+# One-time setup: Settings → Pages → Build and deployment → Source:
+# "GitHub Actions" (this repository currently defaults to "Deploy from a
+# branch", which would publish the raw repository instead of the build).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Check both languages and the 404 page were built
+        run: |
+          test -f dist/index.html
+          test -f dist/fa/index.html
+          test -f dist/404.html
+          grep -q 'lang="fa" dir="rtl"' dist/fa/index.html || { echo "::error::Persian page is not RTL"; exit 1; }
+          grep -q 'hreflang="fa"' dist/index.html || { echo "::error::Missing hreflang alternates"; exit 1; }
+      - if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+      - if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
