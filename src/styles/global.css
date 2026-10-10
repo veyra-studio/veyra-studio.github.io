@@ -808,23 +808,27 @@ html.veil-text .wordmark {
   align-content: center;
   gap: 1.2rem;
   text-decoration: none;
-  background: radial-gradient(circle at 50% 40%, #1a2a52, #0b1028 70%);
+  /* Abali's studio: a pool of blue light on black. */
+  background: radial-gradient(circle at 50% 40%, #13213a, #070b13 62%, #05070b);
 }
+/* The real label: a darker border, a white rule, a cerulean field, a golden oval. */
 .dw-label {
   display: grid;
   place-items: center;
   padding: 0.7rem 1rem;
-  background: #2a8bd3;
-  outline: 2px solid #fff;
-  outline-offset: -6px;
+  background: #2c8ed8;
+  border: 4px solid #1d58a6;
+  outline: 2px solid #f4f7f6;
+  outline-offset: -8px;
   transition: transform 0.6s var(--ease-glide);
 }
 .dw-oval {
   display: block;
   padding: 0.2rem 1.6rem 0.4rem;
   border-radius: 50%;
-  background: #f5dd3a;
-  color: #1f3a8a;
+  background: #f0bd2c;
+  box-shadow: 0 0 0 1.5px #1f4672;
+  color: #1d3784;
   font-family: 'Markazi Text Variable', serif;
   font-weight: 700;
   font-size: 1.5rem;
@@ -1457,9 +1461,8 @@ html[data-reduced-motion] .np-replay {
   display: grid;
   place-items: center;
   background:
-    radial-gradient(ellipse 22% 14% at 50% 50%, #f5dd3a 98%, transparent 100%),
-    #2a8bd3;
-  color: #1f3a8a;
+    radial-gradient(circle at 50% 40%, #13213a, #070b13 62%, #05070b);
+  color: #f4f2ec;
   font-family: 'Markazi Text Variable', serif;
   font-weight: 700;
   font-size: clamp(1.5rem, 3vw, 3rem);
