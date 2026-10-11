@@ -6,7 +6,7 @@ import '@fontsource-variable/geist-mono'
 import '@fontsource-variable/markazi-text'
 import '@fontsource-variable/vazirmatn'
 import '../styles/global.css'
-import { content, paths, type Lang } from '../i18n/content'
+import { content, langs, paths, type Lang } from '../i18n/content'
 
 interface Props {
   lang: Lang
@@ -33,12 +33,12 @@ const canonical = `${site}${paths[lang]}`
     <meta name="color-scheme" content="light" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
-    {!noindex && <link rel="alternate" hreflang="en" href={`${site}/`} />}
-    {!noindex && <link rel="alternate" hreflang="fa" href={`${site}/fa/`} />}
+    {!noindex && langs.map((l) => <link rel="alternate" hreflang={l} href={`${site}${paths[l]}`} />)}
     {!noindex && <link rel="alternate" hreflang="x-default" href={`${site}/`} />}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Veyra Studio" />
     <meta property="og:locale" content={t.meta.ogLocale} />
+    {langs.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={content[l].meta.ogLocale} />)}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />

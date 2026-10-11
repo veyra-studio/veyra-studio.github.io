@@ -4,11 +4,33 @@
     <loc>https://veyra-studio.github.io/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://veyra-studio.github.io/"/>
     <xhtml:link rel="alternate" hreflang="fa" href="https://veyra-studio.github.io/fa/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://veyra-studio.github.io/ar/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://veyra-studio.github.io/tr/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://veyra-studio.github.io/"/>
   </url>
   <url>
     <loc>https://veyra-studio.github.io/fa/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://veyra-studio.github.io/"/>
     <xhtml:link rel="alternate" hreflang="fa" href="https://veyra-studio.github.io/fa/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://veyra-studio.github.io/ar/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://veyra-studio.github.io/tr/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://veyra-studio.github.io/"/>
+  </url>
+  <url>
+    <loc>https://veyra-studio.github.io/ar/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://veyra-studio.github.io/"/>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://veyra-studio.github.io/fa/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://veyra-studio.github.io/ar/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://veyra-studio.github.io/tr/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://veyra-studio.github.io/"/>
+  </url>
+  <url>
+    <loc>https://veyra-studio.github.io/tr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://veyra-studio.github.io/"/>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://veyra-studio.github.io/fa/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://veyra-studio.github.io/ar/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://veyra-studio.github.io/tr/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://veyra-studio.github.io/"/>
   </url>
   <url>
     <loc>https://veyra-studio.github.io/abali/</loc>
