@@ -1,7 +1,8 @@
 /* ==================================================================
    Veyra Studio — global styles
-   One system, two scripts: Latin (Instrument Serif · Geist) and
-   Persian (Markazi Text · Vazirmatn), each set on its own terms.
+   One system, two scripts in four languages: Latin for English and
+   Turkish (Instrument Serif · Geist), Arabic script for Persian and
+   Arabic (Markazi Text · Vazirmatn), each set on its own terms.
    ================================================================== */
 
 :root {
@@ -30,19 +31,21 @@
 }
 
 /* Persian: its own faces, larger optical size, looser leading, no tracking. */
-:root:lang(fa) {
+:root:is(:lang(fa), :lang(ar)) {
   --display: 'Markazi Text Variable', 'Noto Naskh Arabic', serif;
   --text: 'Vazirmatn Variable', 'Geist Variable', system-ui, sans-serif;
   --fs-body: clamp(1rem, 0.96rem + 0.22vw, 1.12rem);
   --lh-body: 2;
   --track-label: 0;
 }
-/* Latin runs inside Persian pages keep the Latin faces. */
-:root:lang(fa) [lang='en'] {
+/* Arabic shares the Persian faces (both cover the Arabic script) and their
+   settings; Turkish shares the Latin ones. Latin runs inside Persian and
+   Arabic pages keep the Latin faces, and the reverse. */
+:root:is(:lang(fa), :lang(ar)) :is([lang='en'], [lang='tr']) {
   --display: 'Instrument Serif', serif;
   --text: 'Geist Variable', system-ui, sans-serif;
 }
-:root:lang(en) [lang='fa'] {
+:root:is(:lang(en), :lang(tr)) :is([lang='fa'], [lang='ar']) {
   --display: 'Markazi Text Variable', serif;
   --text: 'Vazirmatn Variable', system-ui, sans-serif;
 }
@@ -131,7 +134,7 @@ img {
   text-transform: uppercase;
   color: var(--muted);
 }
-:root:lang(fa) .eyebrow {
+:root:is(:lang(fa), :lang(ar)) .eyebrow {
   font-family: var(--text);
   font-size: 0.9rem;
   font-weight: 500;
@@ -230,7 +233,7 @@ img {
   line-height: 1;
   letter-spacing: -0.01em;
 }
-:root:lang(fa) .nav-mark-text {
+:root:is(:lang(fa), :lang(ar)) .nav-mark-text {
   font-size: 1.6rem;
   font-weight: 700;
 }
@@ -255,7 +258,7 @@ img {
   transform-origin: var(--origin-end, right);
   transition: transform 0.5s var(--ease-glide);
 }
-:root:lang(fa) .nav-links a::after {
+:root:is(:lang(fa), :lang(ar)) .nav-links a::after {
   --origin-end: left;
 }
 .nav-links a:hover::after,
@@ -263,63 +266,48 @@ img {
   transform: scaleX(1);
   transform-origin: var(--origin-start, left);
 }
-:root:lang(fa) .nav-links a:hover::after,
-:root:lang(fa) .nav-links a:focus-visible::after {
+:root:is(:lang(fa), :lang(ar)) .nav-links a:hover::after,
+:root:is(:lang(fa), :lang(ar)) .nav-links a:focus-visible::after {
   --origin-start: right;
 }
 .lang-switch {
   justify-self: end;
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.42rem 0.75rem;
+  gap: 2px;
+  padding: 3px;
   border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
   border-radius: 999px;
-  font-size: 0.82rem;
-  text-decoration: none;
+  font-size: 0.78rem;
   line-height: 1;
 }
-.ls-now {
-  font-family: var(--mono);
-  font-weight: 600;
-}
-:root:lang(fa) .ls-now {
-  font-family: var(--text);
-}
-.ls-to {
-  opacity: 0.6;
-  transition: opacity 0.3s ease;
-}
-.ls-to[lang='fa'] {
-  font-family: 'Vazirmatn Variable', system-ui;
-  font-weight: 600;
-}
-.ls-to[lang='en'] {
-  font-family: var(--mono);
-  font-weight: 600;
-}
-.ls-track {
-  position: relative;
-  width: 1.6rem;
-  height: 0.9rem;
+.ls-item {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.1rem;
+  height: 1.75rem;
+  padding-inline: 0.5rem;
   border-radius: 999px;
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  font-family: var(--mono);
+  font-weight: 600;
+  text-decoration: none;
+  opacity: 0.62;
+  transition: opacity 0.3s ease, background-color 0.4s var(--ease-glide), color 0.3s ease;
 }
-.ls-track i {
-  position: absolute;
-  inset-block: 2px;
-  inset-inline-start: 2px;
-  width: calc(0.9rem - 4px);
-  border-radius: 50%;
-  background: var(--signal);
-  transition: inset-inline-start 0.5s var(--ease-glide);
+/* Arabic-script labels set in Vazirmatn, a touch larger to match the Latin caps. */
+.ls-item:is([lang='fa'], [lang='ar']) {
+  font-family: 'Vazirmatn Variable', system-ui;
+  font-size: 0.9rem;
 }
-.lang-switch:hover .ls-track i,
-.lang-switch:focus-visible .ls-track i {
-  inset-inline-start: calc(100% - 0.9rem + 2px);
-}
-.lang-switch:hover .ls-to {
+a.ls-item:hover,
+a.ls-item:focus-visible {
   opacity: 1;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+.ls-item.is-current {
+  opacity: 1;
+  background: var(--signal);
+  color: var(--paper);
 }
 
 /* ------------------------------------------------------------------ */
@@ -363,7 +351,7 @@ img {
   letter-spacing: -0.04em;
   margin-inline-start: -0.04em;
 }
-:root:lang(fa) .wordmark {
+:root:is(:lang(fa), :lang(ar)) .wordmark {
   font-weight: 700;
   font-size: clamp(7rem, 31vw, 32rem);
   line-height: 0.95;
@@ -382,7 +370,7 @@ html.veil-text .wordmark {
   line-height: 1;
   color: var(--signal);
 }
-.wordmark-alt[lang='fa'] {
+.wordmark-alt:is([lang='fa'], [lang='ar']) {
   font-weight: 700;
 }
 .hero-foot {
@@ -399,7 +387,7 @@ html.veil-text .wordmark {
   line-height: 1.45;
   color: var(--ink-2);
 }
-:root:lang(fa) .hero-lead {
+:root:is(:lang(fa), :lang(ar)) .hero-lead {
   line-height: 1.9;
 }
 .hero-ctas {
@@ -425,7 +413,7 @@ html.veil-text .wordmark {
 .hs-text {
   writing-mode: vertical-rl;
 }
-:root:lang(fa) .hero-scroll {
+:root:is(:lang(fa), :lang(ar)) .hero-scroll {
   font-family: var(--text);
   text-transform: none;
   letter-spacing: 0;
@@ -461,7 +449,7 @@ html.veil-text .wordmark {
   line-height: 0.98;
   letter-spacing: -0.03em;
 }
-:root:lang(fa) .statement-lines {
+:root:is(:lang(fa), :lang(ar)) .statement-lines {
   font-weight: 600;
   font-size: clamp(2.4rem, 6.6vw, 7.4rem);
   line-height: 1.35;
@@ -477,8 +465,8 @@ html.veil-text .wordmark {
 .st-3 {
   font-style: italic;
 }
-:root:lang(fa) .st-2,
-:root:lang(fa) .st-3 {
+:root:is(:lang(fa), :lang(ar)) .st-2,
+:root:is(:lang(fa), :lang(ar)) .st-3 {
   font-style: normal;
 }
 .st-3 {
@@ -508,7 +496,7 @@ html.veil-text .wordmark {
   line-height: 0.98;
   letter-spacing: -0.025em;
 }
-:root:lang(fa) .section-title {
+:root:is(:lang(fa), :lang(ar)) .section-title {
   font-weight: 600;
   line-height: 1.45;
   letter-spacing: 0;
@@ -573,7 +561,7 @@ html.veil-text .wordmark {
   color: var(--signal);
   padding-top: 0.55rem;
 }
-:root:lang(fa) .cap-no {
+:root:is(:lang(fa), :lang(ar)) .cap-no {
   font-family: var(--text);
   font-size: 0.95rem;
   padding-top: 0.4rem;
@@ -585,7 +573,7 @@ html.veil-text .wordmark {
   font-size: clamp(1.7rem, 2.4vw, 2.5rem);
   line-height: 1.05;
 }
-:root:lang(fa) .cap-title {
+:root:is(:lang(fa), :lang(ar)) .cap-title {
   font-weight: 600;
   line-height: 1.5;
 }
@@ -638,7 +626,7 @@ html.veil-text .wordmark {
   color: var(--paper);
   font-variant-numeric: tabular-nums;
 }
-:root:lang(fa) .readout {
+:root:is(:lang(fa), :lang(ar)) .readout {
   font-family: var(--text);
 }
 
@@ -688,7 +676,7 @@ html.veil-text .wordmark {
   font-size: 0.75rem;
   color: rgb(241 237 228 / 0.5);
 }
-:root:lang(fa) .demo-hint {
+:root:is(:lang(fa), :lang(ar)) .demo-hint {
   font-family: var(--text);
   font-size: 0.85rem;
 }
@@ -707,7 +695,7 @@ html.veil-text .wordmark {
   font-size: 0.75rem;
   color: rgb(241 237 228 / 0.55);
 }
-:root:lang(fa) .ds-label {
+:root:is(:lang(fa), :lang(ar)) .ds-label {
   font-family: var(--text);
   font-size: 0.85rem;
 }
@@ -729,7 +717,7 @@ html.veil-text .wordmark {
   transform-origin: var(--bar-origin, left);
   transform: scaleX(var(--p, 0));
 }
-:root:lang(fa) .ds-bar i {
+:root:is(:lang(fa), :lang(ar)) .ds-bar i {
   --bar-origin: right;
 }
 
@@ -753,7 +741,7 @@ html.veil-text .wordmark {
   font-size: 0.72rem;
   color: rgb(241 237 228 / 0.5);
 }
-:root:lang(fa) .dt-tag {
+:root:is(:lang(fa), :lang(ar)) .dt-tag {
   font-family: var(--text);
   font-size: 0.82rem;
 }
@@ -795,7 +783,7 @@ html.veil-text .wordmark {
   border-radius: inherit;
   transition: width 0.8s var(--ease-glide);
 }
-:root:lang(fa) .dq-meter i {
+:root:is(:lang(fa), :lang(ar)) .dq-meter i {
   --meter-dir: left;
 }
 
@@ -879,7 +867,7 @@ html.veil-text .wordmark {
 .next-count span {
   color: var(--ink);
 }
-:root:lang(fa) .next-count {
+:root:is(:lang(fa), :lang(ar)) .next-count {
   font-family: var(--text);
   font-size: 0.95rem;
 }
@@ -905,7 +893,7 @@ html.veil-text .wordmark {
   transform-origin: left center;
   scale: var(--p, 0) 1;
 }
-:root:lang(fa) .next-bar i {
+:root:is(:lang(fa), :lang(ar)) .next-bar i {
   transform-origin: right center;
 }
 
@@ -924,7 +912,7 @@ html.veil-text .wordmark {
   color: var(--paper);
   line-height: 1.55;
 }
-:root:lang(fa) .np {
+:root:is(:lang(fa), :lang(ar)) .np {
   line-height: 1.9;
 }
 .np-drag,
@@ -945,7 +933,7 @@ html.veil-text .wordmark {
 .np-index {
   color: var(--signal);
 }
-:root:lang(fa) .np-index {
+:root:is(:lang(fa), :lang(ar)) .np-index {
   font-family: var(--text);
   font-size: 0.92rem;
 }
@@ -978,7 +966,7 @@ html.veil-text .wordmark {
   letter-spacing: -0.02em;
   text-wrap: balance;
 }
-:root:lang(fa) .np-title {
+:root:is(:lang(fa), :lang(ar)) .np-title {
   font-weight: 600;
   line-height: 1.4;
   letter-spacing: 0;
@@ -1013,7 +1001,7 @@ html.veil-text .wordmark {
   border-color: var(--paper);
   color: var(--ink);
 }
-:root:lang(fa) .np-btn {
+:root:is(:lang(fa), :lang(ar)) .np-btn {
   font-family: var(--text);
   font-size: 0.92rem;
   text-transform: none;
@@ -1039,7 +1027,7 @@ html[data-reduced-motion] .np-replay {
   line-height: 0.92;
   letter-spacing: -0.035em;
 }
-:root:lang(fa) .np-headline {
+:root:is(:lang(fa), :lang(ar)) .np-headline {
   font-weight: 600;
   line-height: 1.35;
   letter-spacing: 0;
@@ -1072,7 +1060,7 @@ html[data-reduced-motion] .np-replay {
   text-transform: uppercase;
   color: var(--muted);
 }
-:root:lang(fa) .np-cue {
+:root:is(:lang(fa), :lang(ar)) .np-cue {
   font-family: var(--text);
   font-size: 0.9rem;
   text-transform: none;
@@ -1082,7 +1070,7 @@ html[data-reduced-motion] .np-replay {
   color: var(--signal);
   animation: cue-ltr 1.8s var(--ease-drift) infinite;
 }
-:root:lang(fa) .np-cue i {
+:root:is(:lang(fa), :lang(ar)) .np-cue i {
   animation-name: cue-rtl;
 }
 @keyframes cue-ltr {
@@ -1133,7 +1121,7 @@ html[data-reduced-motion] .np-replay {
   text-transform: uppercase;
   color: rgb(241 237 228 / 0.62);
 }
-:root:lang(fa) .kd-control label {
+:root:is(:lang(fa), :lang(ar)) .kd-control label {
   font-family: var(--text);
   font-size: 0.9rem;
   text-transform: none;
@@ -1148,7 +1136,7 @@ html[data-reduced-motion] .np-replay {
   color: var(--signal);
   text-align: end;
 }
-:root:lang(fa) .kd-control output {
+:root:is(:lang(fa), :lang(ar)) .kd-control output {
   font-family: var(--text);
 }
 
@@ -1198,7 +1186,7 @@ html[data-reduced-motion] .np-replay {
   font-size: 0.8rem;
   opacity: 0.75;
 }
-:root:lang(fa) .dg-no {
+:root:is(:lang(fa), :lang(ar)) .dg-no {
   font-family: var(--text);
   font-size: 0.95rem;
 }
@@ -1208,7 +1196,7 @@ html[data-reduced-motion] .np-replay {
   font-size: clamp(1.8rem, 9cqi, 3.4rem);
   line-height: 1;
 }
-:root:lang(fa) .dg-card strong {
+:root:is(:lang(fa), :lang(ar)) .dg-card strong {
   font-weight: 600;
   line-height: 1.4;
 }
@@ -1242,7 +1230,7 @@ html[data-reduced-motion] .np-replay {
   font-size: min(1.3rem, 4.5cqi);
   color: rgb(241 237 228 / 0.8);
 }
-:root:lang(fa) .fl-grid li {
+:root:is(:lang(fa), :lang(ar)) .fl-grid li {
   font-family: var(--text);
 }
 .fl-grid li.is-light {
@@ -1293,7 +1281,7 @@ html[data-reduced-motion] .np-replay {
   font-size: clamp(1.5rem, 7cqi, 2.4rem);
   line-height: 1.05;
 }
-:root:lang(fa) .pt-card strong {
+:root:is(:lang(fa), :lang(ar)) .pt-card strong {
   font-weight: 600;
   line-height: 1.45;
 }
@@ -1350,10 +1338,10 @@ html[data-reduced-motion] .np-replay {
   /* Both scripts align to the panel's start edge. */
   text-align: left;
 }
-:root:lang(fa) .sc-line {
+:root:is(:lang(fa), :lang(ar)) .sc-line {
   text-align: right;
 }
-.sc-line[lang='fa'] {
+.sc-line:is([lang='fa'], [lang='ar']) {
   font-weight: 600;
   line-height: 1.5;
 }
@@ -1405,7 +1393,7 @@ html[data-reduced-motion] .np-replay {
   line-height: 1.15;
   letter-spacing: -0.02em;
 }
-:root:lang(fa) .nm-text {
+:root:is(:lang(fa), :lang(ar)) .nm-text {
   font-weight: 600;
   line-height: 1.6;
   letter-spacing: 0;
@@ -1473,7 +1461,7 @@ html[data-reduced-motion] .np-replay {
   font-size: 0.8rem;
   color: var(--signal);
 }
-:root:lang(fa) .case-no {
+:root:is(:lang(fa), :lang(ar)) .case-no {
   font-family: var(--text);
   font-size: 0.95rem;
 }
@@ -1485,7 +1473,7 @@ html[data-reduced-motion] .np-replay {
   line-height: 0.9;
   letter-spacing: -0.03em;
 }
-:root:lang(fa) .case-title {
+:root:is(:lang(fa), :lang(ar)) .case-title {
   font-weight: 700;
   line-height: 1.25;
   letter-spacing: 0;
@@ -1522,7 +1510,7 @@ html[data-reduced-motion] .np-replay {
   text-transform: uppercase;
   color: var(--muted);
 }
-:root:lang(fa) .case-facts dt {
+:root:is(:lang(fa), :lang(ar)) .case-facts dt {
   font-family: var(--text);
   font-size: 0.82rem;
   text-transform: none;
@@ -1570,7 +1558,7 @@ html[data-reduced-motion] .np-replay {
   font-size: 0.8rem;
   color: var(--signal);
 }
-:root:lang(fa) .part-no {
+:root:is(:lang(fa), :lang(ar)) .part-no {
   font-family: var(--text);
 }
 .part-name {
@@ -1580,7 +1568,7 @@ html[data-reduced-motion] .np-replay {
   font-size: clamp(1.8rem, 2.6vw, 2.6rem);
   line-height: 1.1;
 }
-:root:lang(fa) .part-name {
+:root:is(:lang(fa), :lang(ar)) .part-name {
   font-weight: 700;
   line-height: 1.5;
 }
@@ -1635,10 +1623,10 @@ html[data-reduced-motion] .np-replay {
   background: var(--ink);
   color: var(--paper);
 }
-:root:lang(fa) .ld-a {
+:root:is(:lang(fa), :lang(ar)) .ld-a {
   left: 82%;
 }
-:root:lang(fa) .ld-c {
+:root:is(:lang(fa), :lang(ar)) .ld-c {
   left: 18%;
 }
 .principles-title {
@@ -1650,7 +1638,7 @@ html[data-reduced-motion] .np-replay {
   text-transform: uppercase;
   color: var(--muted);
 }
-:root:lang(fa) .principles-title {
+:root:is(:lang(fa), :lang(ar)) .principles-title {
   font-family: var(--text);
   font-size: 0.95rem;
   text-transform: none;
@@ -1669,7 +1657,7 @@ html[data-reduced-motion] .np-replay {
   padding: 1.4rem 1.2rem 1.6rem 0;
   border-bottom: 1px solid var(--line);
 }
-:root:lang(fa) .principles li {
+:root:is(:lang(fa), :lang(ar)) .principles li {
   padding: 1.4rem 0 1.6rem 1.2rem;
 }
 .principles strong {
@@ -1678,7 +1666,7 @@ html[data-reduced-motion] .np-replay {
   font-size: 1.45rem;
   line-height: 1.15;
 }
-:root:lang(fa) .principles strong {
+:root:is(:lang(fa), :lang(ar)) .principles strong {
   font-weight: 700;
   line-height: 1.6;
 }
@@ -1752,7 +1740,7 @@ html[data-reduced-motion] .np-replay {
   letter-spacing: -0.04em;
   color: var(--ink);
 }
-:root:lang(fa) .footer-mark {
+:root:is(:lang(fa), :lang(ar)) .footer-mark {
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0;
@@ -1847,18 +1835,22 @@ html[data-reduced-motion] .np-replay {
   font-size: clamp(3rem, 8vw, 6rem);
   line-height: 1;
 }
-.nf-fa {
+.nf-others {
   justify-self: stretch;
+  display: grid;
+  gap: 2.5rem;
   margin-top: 3rem;
+}
+.nf-alt {
   padding-top: 2rem;
   border-top: 1px solid var(--line);
 }
-.nf-fa h2 {
+.nf-alt:is([lang='fa'], [lang='ar']) h2 {
   font-family: 'Markazi Text Variable', serif;
   font-weight: 700;
   line-height: 1.4;
 }
-.nf-fa p {
+.nf-alt:is([lang='fa'], [lang='ar']) p {
   font-family: 'Vazirmatn Variable', system-ui;
 }
 .nf-thread {
@@ -1889,14 +1881,14 @@ html[data-reduced-motion] .np-replay {
   animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
 }
 /* The new language wipes in along its reading direction. */
-html:active-view-transition-type(to-fa)::view-transition-new(root) {
+html:active-view-transition-type(to-rtl)::view-transition-new(root) {
   animation: wipe-from-right 0.9s cubic-bezier(0.65, 0, 0.35, 1) both;
 }
-html:active-view-transition-type(to-en)::view-transition-new(root) {
+html:active-view-transition-type(to-ltr)::view-transition-new(root) {
   animation: wipe-from-left 0.9s cubic-bezier(0.65, 0, 0.35, 1) both;
 }
-html:active-view-transition-type(to-fa)::view-transition-old(root),
-html:active-view-transition-type(to-en)::view-transition-old(root) {
+html:active-view-transition-type(to-rtl)::view-transition-old(root),
+html:active-view-transition-type(to-ltr)::view-transition-old(root) {
   animation: recede 0.9s cubic-bezier(0.65, 0, 0.35, 1) both;
 }
 @keyframes wipe-from-right {
@@ -1965,7 +1957,7 @@ html:active-view-transition-type(to-en)::view-transition-old(root) {
   .wordmark {
     font-size: 36vw;
   }
-  :root:lang(fa) .wordmark {
+  :root:is(:lang(fa), :lang(ar)) .wordmark {
     font-size: 44vw;
   }
   .wordmark-alt {

@@ -3,7 +3,8 @@
 //   npm run build && npm run verify
 //
 // Serves dist/ exactly as GitHub Pages would (static files, directory
-// indexes, 404.html), then checks both languages: no console errors or
+// indexes, 404.html), then checks all four languages (English, Persian,
+// Arabic, Turkish): no console errors or
 // failed requests, lang/dir and hreflang, keyboard entry, the language
 // switch, reduced motion, mobile layout. Screenshots go to verify-output/.
 import { createReadStream, existsSync, mkdirSync, statSync } from 'node:fs'
@@ -31,6 +32,15 @@ const server = createServer((req, res) => {
 })
 await new Promise((r) => server.listen(0, r))
 const BASE = `http://localhost:${server.address().port}`
+
+// Each language: path, direction, digits, browser locale, and where its switch leads in the check.
+const LANGS = [
+  { lang: 'en', path: '/', dir: 'ltr', digits: /^[0-9]+$/, locale: 'en-US', eight: '8' },
+  { lang: 'fa', path: '/fa/', dir: 'rtl', digits: /^[۰-۹]+$/, locale: 'fa-IR', eight: '۸' },
+  { lang: 'ar', path: '/ar/', dir: 'rtl', digits: /^[٠-٩]+$/, locale: 'ar', eight: '٨' },
+  { lang: 'tr', path: '/tr/', dir: 'ltr', digits: /^[0-9]+$/, locale: 'tr-TR', eight: '8' },
+]
+const spec = (lang) => LANGS.find((l) => l.lang === lang)
 
 const failures = []
 const fail = (msg) => {
@@ -101,7 +111,7 @@ const inView = (page, id) =>
   })
 
 async function checkNext(page, lang, device) {
-  const rtl = lang === 'fa'
+  const rtl = spec(lang).dir === 'rtl'
   const shot = (name) => page.screenshot({ path: `${OUT}${lang}-${device}-new-${name}.png` })
 
   // The row is a horizontal section: tall, pinned, moving along the reading direction.
@@ -122,8 +132,7 @@ async function checkNext(page, lang, device) {
   }, rtl)
   ;(rtl ? mid.x > 100 : mid.x < -100) ? pass(`0.2 row travels ${rtl ? 'rightward' : 'leftward'} (x ${Math.round(mid.x)}px)`) : fail(`0.2 row x ${mid.x}`)
   mid.snapped ? pass('0.2 row settles on a panel') : fail('0.2 row did not snap to a panel')
-  const digits = rtl ? /^[۰-۹]{2}$/ : /^[0-9]{2}$/
-  digits.test(mid.count) && !/^(01|۰۱)$/.test(mid.count) ? pass(`counter reads ${mid.count}`) : fail(`counter reads ${mid.count}`)
+  spec(lang).digits.test(mid.count) && mid.count.length === 2 && !/^(01|۰۱|٠١)$/.test(mid.count) ? pass(`counter reads ${mid.count}`) : fail(`counter reads ${mid.count}`)
   const crowded = await page.$$eval('.np', (panels) =>
     panels
       .filter((p) => {
@@ -146,7 +155,7 @@ async function checkNext(page, lang, device) {
     return
   }
 
-  // Kashida: focus pulls the panel into view; the slider stretches the words (8 tatweels per word).
+  // Kashida: focus pulls the panel into view; the slider stretches the words (8 tatweels per stretchable word).
   await page.focus('[data-kashida-range]')
   await page.waitForTimeout(1600)
   ;(await inView(page, 'kashida')) ? pass('focus brings an offscreen panel into view') : fail('focused panel stayed offscreen')
@@ -158,7 +167,7 @@ async function checkNext(page, lang, device) {
     level: document.querySelector('[data-kashida-level]').textContent,
   }))
   const tatweels = (k.shown.match(/\u0640/g) ?? []).length
-  tatweels === 16 && !k.spoken.includes('\u0640') && k.level === (rtl ? '۸' : '8')
+  tatweels >= 8 && tatweels % 8 === 0 && !k.spoken.includes('\u0640') && k.level === spec(lang).eight
     ? pass(`kashida slider stretches the words (${tatweels} tatweels, accessible text intact)`)
     : fail(`kashida: ${tatweels} tatweels, level ${k.level}, spoken “${k.spoken}”`)
   await shot('kashida')
@@ -274,8 +283,8 @@ async function checkNext(page, lang, device) {
 
 try {
   const browser = await chromium.launch()
-  for (const [lang, path, dir] of [['en', '/', 'ltr'], ['fa', '/fa/', 'rtl']]) {
-    await visit(browser, `Desktop ${lang.toUpperCase()} 1440×900`, path, { viewport: { width: 1440, height: 900 }, locale: lang === 'fa' ? 'fa-IR' : 'en-US' }, async (page) => {
+  for (const { lang, path, dir, locale } of LANGS) {
+    await visit(browser, `Desktop ${lang.toUpperCase()} 1440×900`, path, { viewport: { width: 1440, height: 900 }, locale }, async (page) => {
       const meta = await page.evaluate(() => ({
         lang: document.documentElement.lang,
         dir: document.documentElement.dir,
@@ -285,7 +294,7 @@ try {
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       }))
       meta.lang === lang && meta.dir === dir ? pass(`lang="${lang}" dir="${dir}"`) : fail(`lang/dir ${meta.lang}/${meta.dir}`)
-      ;['en', 'fa', 'x-default'].every((h) => meta.hreflang.includes(h)) ? pass('hreflang alternates') : fail(`hreflang: ${meta.hreflang}`)
+      ;[...LANGS.map((l) => l.lang), 'x-default'].every((h) => meta.hreflang.includes(h)) ? pass('hreflang alternates') : fail(`hreflang: ${meta.hreflang}`)
       meta.h1 ? pass(`h1 “${meta.h1}”`) : fail('missing h1')
       meta.veil ? pass('woven wordmark active') : fail('veil did not initialise')
       meta.overflow <= 1 ? pass('no horizontal overflow') : fail(`horizontal overflow ${meta.overflow}px`)
@@ -302,10 +311,15 @@ try {
       const codeOverflow = await page.$eval('.code', (el) => el.scrollWidth - el.clientWidth)
       codeOverflow <= 1 ? pass('code sample fits without scrolling') : fail(`code sample overflows by ${codeOverflow}px`)
       await checkNext(page, lang, 'desktop')
-      // The language switch leads to the other language.
-      const other = lang === 'en' ? '/fa/' : '/'
+      // The language switch lists every language, marks this one, and leads to the next.
+      const switcher = await page.$$eval('.lang-switch .ls-item', (items) => items.map((i) => [i.getAttribute('lang'), i.getAttribute('aria-current')]))
+      switcher.length === LANGS.length && switcher.every(([l, cur]) => (l === lang) === (cur === 'page'))
+        ? pass(`language switch lists ${switcher.map(([l]) => l).join(', ')}`)
+        : fail(`language switch items ${JSON.stringify(switcher)}`)
+      const next = LANGS[(LANGS.findIndex((l) => l.lang === lang) + 1) % LANGS.length]
+      const other = next.path
       await at(page, '#top', 0)
-      await page.click('.lang-switch')
+      await page.click(`.lang-switch a[lang="${next.lang}"]`)
       await page.waitForURL(`${BASE}${other}`, { timeout: 10000 }).catch(() => {})
       new URL(page.url()).pathname === other ? pass(`language switch → ${other}`) : fail(`language switch went to ${page.url()}`)
     })
@@ -347,7 +361,8 @@ try {
   })
   await visit(browser, '404 page', '/does-not-exist/', { viewport: { width: 1280, height: 800 } }, async (page) => {
     const h1 = await page.textContent('h1')
-    h1?.length ? pass(`404 renders “${h1}”`) : fail('404 page missing')
+    const alts = await page.$$eval('.nf-alt', (els) => els.map((el) => el.lang))
+    h1?.length && alts.length === LANGS.length - 1 ? pass(`404 renders “${h1}” and ${alts.join(', ')}`) : fail(`404 page: h1 ${h1}, others ${alts}`)
   }, { expectStatus: 404 })
   await browser.close()
 } catch (error) {

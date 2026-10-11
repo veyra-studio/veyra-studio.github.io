@@ -1,8 +1,8 @@
 /**
  * "New in 0.2": a row of live demos that is itself a horizontal section,
  * followed by a marquee band. Every effect is the page's own Veyra stage
- * at work — the row travels rightward on the Persian page, leftward on the
- * English one.
+ * at work — the row travels rightward on the Persian and Arabic pages,
+ * leftward on the English and Turkish ones.
  */
 import {
   damp,
@@ -17,16 +17,17 @@ import {
   seededRandom,
   stagger,
   tilt,
-  toPersianDigits,
   whenVisible,
   type Draggable,
   type Stage,
   type Timeline,
 } from '@veyra/core'
 import { glslColor, glslMath, glslNoise, glslSdf } from '@veyra/core/glsl'
+import { localNumber, pageLang } from '../i18n/numerals'
 
-const fa = document.documentElement.lang === 'fa'
-const num = (v: string | number) => (fa ? toPersianDigits(String(v)) : String(v))
+const lang = pageLang()
+const rtl = document.documentElement.dir === 'rtl'
+const num = (v: string | number) => localNumber(lang, v)
 const two = (n: number) => num(String(n).padStart(2, '0'))
 
 /** Runs `play` each time most of `panel` comes into view. */
@@ -117,7 +118,7 @@ function flipDemo(stage: Stage, panel: HTMLElement) {
       },
       {
         duration: 0.85,
-        stagger: stagger(0.022, { grid: [4, 4], from: 'center', rtl: fa }),
+        stagger: stagger(0.022, { grid: [4, 4], from: 'center', rtl }),
         immediate: stage.reducedMotion.value,
         ticker: stage.ticker,
       },

@@ -2,11 +2,13 @@
  * Live engine demos for the "Engine" section. Each one is the page's own
  * Veyra stage at work — nothing is simulated.
  */
-import { clamp, Spring, splitText, toPersianDigits, type Stage } from '@veyra/core'
+import { clamp, Spring, splitText, type Stage } from '@veyra/core'
+import { localNumber, pageLang } from '../i18n/numerals'
 
-const fa = document.documentElement.lang === 'fa'
-// Persian numerals use the Arabic decimal separator «٫».
-const num = (v: string) => (fa ? toPersianDigits(v).replace(/\./g, '٫') : v)
+const lang = pageLang()
+const rtl = document.documentElement.dir === 'rtl'
+// Persian and Arabic digits with «٫»; the Turkish decimal comma.
+const num = (v: string) => localNumber(lang, v)
 
 function fitCanvas(canvas: HTMLCanvasElement): { w: number; h: number; dpr: number } {
   const r = canvas.getBoundingClientRect()
@@ -53,7 +55,7 @@ function loopDemo(stage: Stage, root: HTMLElement, visible: () => boolean) {
     for (let i = 0; i < N; i++) {
       const ms = samples[(head + i) % N]!
       const x = pad + (i / (N - 1)) * (w - pad * 2)
-      const xx = fa ? w - x : x
+      const xx = rtl ? w - x : x
       if (i === 0) ctx.moveTo(xx, y(ms))
       else ctx.lineTo(xx, y(ms))
     }
@@ -106,7 +108,7 @@ function springDemo(stage: Stage, root: HTMLElement) {
   // Keyboard: a nudge in any direction, then the spring takes over.
   dot.tabIndex = 0
   dot.setAttribute('role', 'button')
-  dot.setAttribute('aria-label', fa ? 'نقطهٔ فنری؛ با کلیدهای جهت تکانش دهید' : 'Spring dot — nudge it with the arrow keys')
+  dot.setAttribute('aria-label', dot.dataset.label ?? 'Spring dot — nudge it with the arrow keys')
   dot.addEventListener('keydown', (e) => {
     const kick = 900
     if (e.key === 'ArrowLeft') sx.impulse(-kick)

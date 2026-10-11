@@ -6,9 +6,11 @@ import { createStage, range, splitText, type Stage } from '@veyra/core'
 import { initDemos } from './demos'
 import { initNext } from './next'
 import { createVeil } from './veil'
+import { pageLang } from '../i18n/numerals'
 
-const html = document.documentElement
-const lang = html.lang === 'fa' ? 'fa' : 'en'
+const lang = pageLang()
+const langs = ['en', 'fa', 'ar', 'tr'] as const
+const rtlLangs = new Set<string>(['fa', 'ar'])
 const stage = createStage({ quality: { dprRange: [1, 2] } })
 
 // ---------------------------------------------------------------------
@@ -146,8 +148,10 @@ function initLanguages() {
   for (const link of document.querySelectorAll<HTMLAnchorElement>('[data-lang-switch]')) {
     link.addEventListener('click', () => store('veyra:lang', link.dataset.langSwitch ?? lang))
   }
-  // Tell the transition which way to wipe (both outgoing and incoming page).
-  const typeFor = (url: string) => (new URL(url, location.href).pathname.startsWith('/fa') ? 'to-fa' : 'to-en')
+  // Tell the transition which way to wipe (both outgoing and incoming page):
+  // right-to-left languages wipe in from the right, the others from the left.
+  const langOf = (url: string) => /^\/(fa|ar|tr)\//.exec(new URL(url, location.href).pathname)?.[1] ?? 'en'
+  const typeFor = (url: string) => (rtlLangs.has(langOf(url)) ? 'to-rtl' : 'to-ltr')
   window.addEventListener('pageswap', (e) => {
     const event = e as Event & { viewTransition?: { types: Set<string> }; activation?: { entry?: { url: string } } }
     const url = event.activation?.entry?.url
@@ -158,10 +162,14 @@ function initLanguages() {
     if (event.viewTransition) event.viewTransition.types.add(typeFor(location.href))
   })
 
-  const hint = document.querySelector<HTMLElement>('[data-lang-hint]')
-  if (!hint || store('veyra:hint-dismissed')) return
-  const prefersFa = (navigator.languages ?? [navigator.language]).some((l) => l?.toLowerCase().startsWith('fa'))
-  if (lang === 'en' ? !prefersFa : prefersFa) return
+  // Offer the visitor's preferred language when it is one of ours and not this page's.
+  if (store('veyra:hint-dismissed')) return
+  const preferred = (navigator.languages ?? [navigator.language])
+    .map((l) => l?.toLowerCase().split('-')[0])
+    .find((l): l is (typeof langs)[number] => langs.includes(l as (typeof langs)[number]))
+  if (!preferred || preferred === lang) return
+  const hint = document.querySelector<HTMLElement>(`[data-lang-hint="${preferred}"]`)
+  if (!hint) return
   hint.hidden = false
   hint.querySelector('[data-lang-hint-close]')?.addEventListener('click', () => {
     hint.hidden = true
@@ -169,11 +177,20 @@ function initLanguages() {
   })
 }
 
+/** Quality tier names in the page's language, rendered by the page. */
+function readTiers(): Record<string, string> {
+  try {
+    return JSON.parse(document.querySelector<HTMLElement>('[data-tier]')?.dataset.tiers ?? '{}') as Record<string, string>
+  } catch {
+    return {}
+  }
+}
+
 // ---------------------------------------------------------------------
 initNav(stage)
 void initHero(stage)
 initStatement(stage)
-initDemos(stage, lang === 'fa' ? { low: 'پایین', medium: 'متوسط', high: 'بالا' } : { low: 'low', medium: 'medium', high: 'high' })
+initDemos(stage, readTiers())
 initNext(stage)
 initWork(stage)
 highlight()
