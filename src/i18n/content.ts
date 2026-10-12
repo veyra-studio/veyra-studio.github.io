@@ -23,6 +23,11 @@ export const links = {
   org: 'https://github.com/veyra-studio',
 }
 
+/** Where commissions go. */
+export const email = 'itsmetti@proton.me'
+/** A mailto link with a subject in the page's language. */
+export const mailto = (subject: string) => `mailto:${email}?subject=${encodeURIComponent(subject)}`
+
 export interface Capability {
   id: 'loop' | 'motion' | 'scroll' | 'type' | 'quality' | 'webgl'
   no: string
@@ -45,7 +50,7 @@ export interface Content {
   dir: 'ltr' | 'rtl'
   meta: { title: string; description: string; ogLocale: string }
   skip: string
-  nav: { engine: string; work: string; studio: string; source: string; menu: string; home: string; languages: string }
+  nav: { engine: string; work: string; studio: string; contact: string; source: string; menu: string; home: string; languages: string }
   hero: {
     eyebrow: string
     wordmark: string
@@ -108,6 +113,20 @@ export interface Content {
     principles: Array<{ name: string; body: string }>
   }
   start: { kicker: string; title: string; body: string; cta: string; docs: string }
+  /** Commissions: the studio's address, in the section before the footer. */
+  contact: {
+    kicker: string
+    title: string
+    body: string
+    /** What the studio makes, in a few words each. */
+    offer: string[]
+    /** The label before the address. */
+    write: string
+    copy: string
+    copied: string
+    /** The subject a new mail starts with. */
+    subject: string
+  }
   footer: { made: string; rights: string; top: string; links: string }
   notFound: { title: string; body: string; home: string }
   /** The language's own name and a short label for the switcher. */
@@ -128,7 +147,7 @@ export const en: Content = {
     ogLocale: 'en_US',
   },
   skip: 'Skip to content',
-  nav: { engine: 'Engine', work: 'Work', studio: 'Studio', source: 'Source', menu: 'Main', home: 'Veyra Studio, home', languages: 'Language' },
+  nav: { engine: 'Engine', work: 'Work', studio: 'Studio', contact: 'Contact', source: 'Source', menu: 'Main', home: 'Veyra Studio, home', languages: 'Language' },
   hero: {
     eyebrow: 'Veyra Studio — creative technology',
     wordmark: 'Veyra',
@@ -198,9 +217,9 @@ export const en: Content = {
     body: 'A Persian, right-to-left campaign concept for Doogh Abali, the carbonated yogurt drink in a glass bottle. Cool has a sound — opening a cold Abali is a handful of them: the opener prying off the crown cap, the gas escaping, the first gulps, the sigh of relief. The film stretches them into a scroll: a bottle rebuilt from photographs of the real one, a cap that snaps off and clatters to the floor, foam that boils over and turns to snow on the mountains around Abali, and a sofreh that fills dish by dish.',
     facts: [
       ['Language', 'Persian, RTL'],
-      ['Built with', 'Veyra Core 0.4 + three.js'],
+      ['Built with', 'Veyra Core + three.js'],
       ['Assets', 'All generated live — no photos, no model files'],
-      ['Sound', 'Synthesized, optional'],
+      ['Sound', 'Synthesized, on by default'],
     ],
     cta: 'Open the experience',
     source: 'Source',
@@ -231,6 +250,16 @@ export const en: Content = {
     cta: 'Veyra Core on GitHub',
     docs: 'Read the guide',
   },
+  contact: {
+    kicker: 'Commissions',
+    title: 'Something to launch? Let’s make it move.',
+    body: 'We design and build art-directed web experiences on Veyra — campaign sites, product launches, stories told in scroll — in English, Persian, Arabic or Turkish. Tell us what you are making.',
+    offer: ['Campaign sites', 'Product launches', 'Stories told in scroll', 'Persian and Arabic, designed — not mirrored'],
+    write: 'Write to us',
+    copy: 'Copy address',
+    copied: 'Address copied',
+    subject: 'A project with Veyra Studio',
+  },
   footer: { made: 'Made with Veyra, in English, Persian, Arabic and Turkish.', rights: '© 2026 Veyra Studio', top: 'Back to top', links: 'Links' },
   notFound: { title: 'A loose thread.', body: 'This page doesn’t exist — or not yet.', home: 'Back to the studio' },
   langName: 'English',
@@ -249,7 +278,7 @@ export const fa: Content = {
     ogLocale: 'fa_IR',
   },
   skip: 'پرش به محتوا',
-  nav: { engine: 'موتور', work: 'کارها', studio: 'استودیو', source: 'کد منبع', menu: 'اصلی', home: 'استودیو ویرا، صفحهٔ اصلی', languages: 'زبان' },
+  nav: { engine: 'موتور', work: 'کارها', studio: 'استودیو', contact: 'سفارش', source: 'کد منبع', menu: 'اصلی', home: 'استودیو ویرا، صفحهٔ اصلی', languages: 'زبان' },
   hero: {
     eyebrow: 'استودیو ویرا — فناوری خلاق',
     wordmark: 'ویرا',
@@ -318,9 +347,9 @@ export const fa: Content = {
     body: 'طرحی مفهومی، فارسی و راست‌به‌چپ برای دوغ گازدارِ آبعلی. خنکی صدا دارد؛ باز کردنِ یک آبعلیِ سرد چند صداست: دربازکن که درِ تاجی را بلند می‌کند، گازی که بیرون می‌زند، قلپِ اول و «آخیش». فیلم همین صداها را با اسکرول کش می‌دهد: بطری‌ای که از روی عکس‌های محصولِ واقعی ساخته شده، دری که می‌پرد و روی زمین می‌افتد، کفی که سر می‌رود و برفِ کوه‌های آبعلی می‌شود، و سفره‌ای که بشقاب‌به‌بشقاب چیده می‌شود.',
     facts: [
       ['زبان', 'فارسی، راست‌به‌چپ'],
-      ['ساخته‌شده با', 'هستهٔ ویرا ۰٫۴ و three.js'],
+      ['ساخته‌شده با', 'هستهٔ ویرا و three.js'],
       ['تصویرها', 'همه زنده با کد ساخته می‌شوند؛ بی‌عکس، بی‌فایلِ سه‌بعدی'],
-      ['صدا', 'ساخته‌شده با کد، اختیاری'],
+      ['صدا', 'ساخته‌شده با کد، از اول روشن'],
     ],
     cta: 'تجربه را باز کنید',
     source: 'کد منبع',
@@ -351,6 +380,16 @@ export const fa: Content = {
     cta: 'هستهٔ ویرا در گیت‌هاب',
     docs: 'خواندنِ راهنما',
   },
+  contact: {
+    kicker: 'سفارش پروژه',
+    title: 'چیزی برای رونمایی دارید؟ بیایید به حرکتش درآوریم.',
+    body: 'تجربه‌های وبِ کارگردانی‌شده طراحی می‌کنیم و می‌سازیم، روی ویرا: سایتِ کارزارهای تبلیغاتی، رونماییِ محصول، روایت‌هایی که با اسکرول پیش می‌روند — به فارسی، انگلیسی، عربی یا ترکی. بگویید چه می‌سازید.',
+    offer: ['سایتِ کارزارهای تبلیغاتی', 'رونماییِ محصول', 'روایت با اسکرول', 'فارسی و عربی، طراحی‌شده — نه آینه‌شده'],
+    write: 'برای سفارش بنویسید به',
+    copy: 'کپیِ نشانی',
+    copied: 'نشانی کپی شد',
+    subject: 'سفارش پروژه از استودیو ویرا',
+  },
   footer: { made: 'ساخته‌شده با ویرا، به فارسی، انگلیسی، عربی و ترکی.', rights: '© ۲۰۲۶ استودیو ویرا', top: 'بازگشت به بالا', links: 'پیوندها' },
   notFound: { title: 'یک رشتهٔ گم‌شده.', body: 'این صفحه وجود ندارد — یا هنوز نه.', home: 'بازگشت به استودیو' },
   langName: 'فارسی',
@@ -369,7 +408,7 @@ export const ar: Content = {
     ogLocale: 'ar_AR',
   },
   skip: 'تخطَّ إلى المحتوى',
-  nav: { engine: 'المحرّك', work: 'الأعمال', studio: 'الاستوديو', source: 'الشيفرة المصدرية', menu: 'الرئيسية', home: 'استوديو فيرا، الصفحة الرئيسية', languages: 'اللغة' },
+  nav: { engine: 'المحرّك', work: 'الأعمال', studio: 'الاستوديو', contact: 'تواصل', source: 'الشيفرة المصدرية', menu: 'الرئيسية', home: 'استوديو فيرا، الصفحة الرئيسية', languages: 'اللغة' },
   hero: {
     eyebrow: 'استوديو فيرا — تقنية إبداعية',
     wordmark: 'فيرا',
@@ -438,9 +477,9 @@ export const ar: Content = {
     body: 'تصوّر لحملة فارسية من اليمين إلى اليسار لـ«دوغ آبعلي»، مشروب اللبن الغازي في زجاجة. للانتعاش صوت — وفتح زجاجة آبعلي باردة حفنة من الأصوات: الفتّاحة وهي تنتزع الغطاء المعدني، والغاز وهو يفلت، والرشفات الأولى، وتنهيدة الارتياح. يمدّ الفيلم هذه الأصوات على امتداد التمرير: زجاجة أُعيد بناؤها من صور الزجاجة الحقيقية، وغطاء يقفز ويرتطم بالأرض، ورغوة تفيض فتصير ثلجًا على الجبال المحيطة بآبعلي، وسفرة تمتلئ طبقًا بعد طبق.',
     facts: [
       ['اللغة', 'الفارسية، من اليمين إلى اليسار'],
-      ['بُني بـ', 'نواة فيرا ٠٫٤ و three.js'],
+      ['بُني بـ', 'نواة فيرا و three.js'],
       ['الصور', 'كلها تُولَّد حيًّا — بلا صور فوتوغرافية ولا ملفات نماذج'],
-      ['الصوت', 'مُركَّب بالشيفرة، اختياري'],
+      ['الصوت', 'مُركَّب بالشيفرة، يعمل من البداية'],
     ],
     cta: 'افتح التجربة',
     source: 'الشيفرة المصدرية',
@@ -471,6 +510,16 @@ export const ar: Content = {
     cta: 'نواة فيرا على GitHub',
     docs: 'اقرأ الدليل',
   },
+  contact: {
+    kicker: 'اطلب مشروعك',
+    title: 'لديك ما تُطلقه؟ لنجعله يتحرّك.',
+    body: 'نصمّم تجارب ويب بتوجيه فني ونبنيها على فيرا: مواقع الحملات، وإطلاق المنتجات، وحكايات تُروى بالتمرير — بالعربية أو الفارسية أو الإنجليزية أو التركية. أخبرنا بما تصنعه.',
+    offer: ['مواقع الحملات', 'إطلاق المنتجات', 'حكايات تُروى بالتمرير', 'العربية والفارسية تُصمَّمان، لا تُعكَسان'],
+    write: 'راسلنا على',
+    copy: 'انسخ العنوان',
+    copied: 'نُسخ العنوان',
+    subject: 'مشروع مع استوديو فيرا',
+  },
   footer: { made: 'صُنع بفيرا، بالعربية والفارسية والإنجليزية والتركية.', rights: '© ٢٠٢٦ استوديو فيرا', top: 'العودة إلى الأعلى', links: 'روابط' },
   notFound: { title: 'خيط ضائع.', body: 'هذه الصفحة غير موجودة — أو ليس بعد.', home: 'العودة إلى الاستوديو' },
   langName: 'العربية',
@@ -489,7 +538,7 @@ export const tr: Content = {
     ogLocale: 'tr_TR',
   },
   skip: 'İçeriğe geç',
-  nav: { engine: 'Motor', work: 'İşler', studio: 'Stüdyo', source: 'Kaynak', menu: 'Ana menü', home: 'Veyra Studio, ana sayfa', languages: 'Dil' },
+  nav: { engine: 'Motor', work: 'İşler', studio: 'Stüdyo', contact: 'İletişim', source: 'Kaynak', menu: 'Ana menü', home: 'Veyra Studio, ana sayfa', languages: 'Dil' },
   hero: {
     eyebrow: 'Veyra Studio — yaratıcı teknoloji',
     wordmark: 'Veyra',
@@ -558,9 +607,9 @@ export const tr: Content = {
     body: 'Cam şişedeki gazlı ayran Doogh Abali için Farsça, sağdan sola bir kampanya konsepti. Serinliğin bir sesi var — soğuk bir Abali’yi açmak bir avuç sestir: taç kapağı kaldıran açacak, kaçan gaz, ilk yudumlar, rahatlamış bir “oh”. Film bu sesleri kaydırmaya yayar: gerçek şişenin fotoğraflarından yeniden kurulmuş bir şişe, fırlayıp yere düşen bir kapak, taşan ve Abali’yi çevreleyen dağlarda kara dönüşen köpük ve tabak tabak dolan bir sofra.',
     facts: [
       ['Dil', 'Farsça, sağdan sola'],
-      ['Yapım', 'Veyra Core 0.4 + three.js'],
+      ['Yapım', 'Veyra Core + three.js'],
       ['Görseller', 'Hepsi canlı üretiliyor — fotoğraf yok, model dosyası yok'],
-      ['Ses', 'Sentezlenmiş, isteğe bağlı'],
+      ['Ses', 'Sentezlenmiş, baştan açık'],
     ],
     cta: 'Deneyimi açın',
     source: 'Kaynak',
@@ -590,6 +639,16 @@ export const tr: Content = {
     body: 'Veyra Core MIT lisanslıdır. Kılavuzu okuyun, örnekleri çalıştırın, hareket eden bir şey yapın.',
     cta: 'GitHub’da Veyra Core',
     docs: 'Kılavuzu okuyun',
+  },
+  contact: {
+    kicker: 'Proje siparişi',
+    title: 'Tanıtacak bir şeyiniz mi var? Onu harekete geçirelim.',
+    body: 'Veyra üzerinde sanat yönetmenliğiyle şekillenen web deneyimleri tasarlıyor ve geliştiriyoruz: kampanya siteleri, ürün lansmanları, kaydırdıkça ilerleyen hikâyeler — Türkçe, İngilizce, Farsça ya da Arapça. Ne yaptığınızı anlatın.',
+    offer: ['Kampanya siteleri', 'Ürün lansmanları', 'Kaydırdıkça ilerleyen hikâyeler', 'Farsça ve Arapça tasarlanır, aynalanmaz'],
+    write: 'Bize yazın',
+    copy: 'Adresi kopyala',
+    copied: 'Adres kopyalandı',
+    subject: 'Veyra Studio ile bir proje',
   },
   footer: { made: 'Veyra ile yapıldı; Türkçe, İngilizce, Farsça ve Arapça.', rights: '© 2026 Veyra Studio', top: 'Başa dön', links: 'Bağlantılar' },
   notFound: { title: 'Kopmuş bir iplik.', body: 'Bu sayfa yok — ya da henüz yok.', home: 'Stüdyoya dön' },

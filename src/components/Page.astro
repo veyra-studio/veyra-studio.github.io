@@ -1,5 +1,5 @@
 ---
-import { content, isRtl, langs, links, paths, scriptLang, type Lang } from '../i18n/content'
+import { content, email, isRtl, langs, links, mailto, paths, scriptLang, type Lang } from '../i18n/content'
 import { localNumber } from '../i18n/numerals'
 import Logo from './Logo.astro'
 
@@ -14,6 +14,7 @@ const arrowFor = (l: Lang) => (isRtl(l) ? '←' : '→')
 const arrow = arrowFor(lang)
 const two = (n: number) => digits(String(n).padStart(2, '0'))
 const dirOf = (l: Lang) => (isRtl(l) ? 'rtl' : 'ltr')
+const mail = mailto(t.contact.subject)
 const code = `import {
   createStage,
   horizontal,
@@ -49,6 +50,7 @@ stage.use(horizontal('#gallery', { snap: true }))`
     <a href="#engine">{t.nav.engine}</a>
     <a href="#work">{t.nav.work}</a>
     <a href="#studio">{t.nav.studio}</a>
+    <a href="#contact" class="nav-contact">{t.nav.contact}</a>
     <a href={links.core} class="nav-ext">{t.nav.source}<span aria-hidden="true"> ↗</span></a>
   </nav>
   <nav class="lang-switch" aria-label={t.nav.languages}>
@@ -353,12 +355,32 @@ stage.use(horizontal('#gallery', { snap: true }))`
     </div>
     <pre class="code" dir="ltr" lang="en"><code>{code}</code></pre>
   </section>
+
+  <section class="contact" id="contact" aria-labelledby="contact-title">
+    <header class="contact-head">
+      <p class="eyebrow">{t.contact.kicker}</p>
+      <h2 class="section-title" id="contact-title">{t.contact.title}</h2>
+    </header>
+    <div class="contact-text">
+      <p class="contact-body">{t.contact.body}</p>
+      <ul class="contact-offer">
+        {t.contact.offer.map((item, i) => <li><span class="contact-no" aria-hidden="true">{two(i + 1)}</span>{item}</li>)}
+      </ul>
+    </div>
+    <div class="contact-mail">
+      <span class="contact-write">{t.contact.write}</span>
+      <a class="contact-email" href={mail} lang="en" dir="ltr" translate="no" data-contact-email><span>{email}</span></a>
+      <button type="button" class="btn btn-line contact-copy" data-copy={email} data-copied={t.contact.copied}>{t.contact.copy}</button>
+      <span class="visually-hidden" role="status" data-copy-status></span>
+    </div>
+  </section>
 </main>
 
 <footer class="footer">
   <p class="footer-mark">{t.hero.wordmark}</p>
   <p class="footer-made">{t.footer.made}</p>
   <nav class="footer-links" aria-label={t.footer.links}>
+    <a href={mail} class="footer-email" lang="en" dir="ltr" translate="no">{email}</a>
     <a href={links.core}>Veyra Core<span aria-hidden="true"> ↗</span></a>
     <a href={links.abali}>{t.work.title}<span aria-hidden="true"> ↗</span></a>
     <a href={links.org}>GitHub<span aria-hidden="true"> ↗</span></a>

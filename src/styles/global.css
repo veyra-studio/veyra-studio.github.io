@@ -1720,6 +1720,102 @@ html[data-reduced-motion] .np-replay {
 }
 
 /* ------------------------------------------------------------------ */
+/* Contact — commissions                                               */
+/* ------------------------------------------------------------------ */
+.contact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(2rem, 5vh, 3.5rem) clamp(2rem, 5vw, 5rem);
+  max-width: var(--max);
+  margin-inline: auto;
+  padding: 16vh var(--gutter) 4vh;
+}
+.contact-head {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 1.1rem;
+  max-width: 64rem;
+}
+.contact-text {
+  display: contents;
+}
+.contact-body {
+  margin: 0;
+  max-width: 34rem;
+  font-size: clamp(1.02rem, 0.98rem + 0.3vw, 1.22rem);
+  color: var(--ink-2);
+}
+.contact-offer {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+.contact-offer li {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding-block: 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+.contact-no {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.contact-mail {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 2rem;
+  padding-top: clamp(1.5rem, 5vh, 3rem);
+}
+.contact-write {
+  flex-basis: 100%;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+:root:is(:lang(fa), :lang(ar)) .contact-write {
+  font-family: var(--text);
+  font-size: 0.95rem;
+  text-transform: none;
+}
+.contact-email {
+  /* The address reads left to right on every page, in the Latin display face. */
+  unicode-bidi: isolate;
+  display: inline-block;
+  max-width: 100%;
+  font-family: 'Instrument Serif', 'Times New Roman', serif;
+  font-size: clamp(2rem, 9.4vw, 7.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.contact-email span {
+  display: inline-block;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 100% 2px no-repeat;
+  transition: color 0.35s ease, background-size 0.5s var(--ease-glide);
+}
+.contact-email:hover span,
+.contact-email:focus-visible span {
+  color: var(--signal-ink);
+  background-size: 0% 2px;
+}
+.contact-copy {
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------------ */
 /* Footer                                                              */
 /* ------------------------------------------------------------------ */
 .footer {
@@ -1947,6 +2043,15 @@ html:active-view-transition-type(to-ltr)::view-transition-old(root) {
   }
   .nav-links {
     display: none;
+  }
+  .contact {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 12vh;
+  }
+  /* Every block spans all twelve columns here; eleven 2 rem gaps alone
+     (352 px) would push a 320 px phone sideways. */
+  .statement {
+    column-gap: 0;
   }
   .hero-foot {
     grid-template-columns: 1fr;

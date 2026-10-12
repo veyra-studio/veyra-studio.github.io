@@ -2,7 +2,7 @@
  * Veyra Studio — page runtime. One Veyra stage drives the veil, the
  * demos, section reveals and the navigation.
  */
-import { createStage, range, splitText, type Stage } from '@veyra/core'
+import { createStage, magnetic, range, splitText, type Stage } from '@veyra/core'
 import { initDemos } from './demos'
 import { initNext } from './next'
 import { createVeil } from './veil'
@@ -109,6 +109,47 @@ function initWork(stage: Stage) {
 }
 
 // ---------------------------------------------------------------------
+// Contact: the address leans toward the pointer; a button copies it.
+// ---------------------------------------------------------------------
+function initContact(stage: Stage) {
+  const address = document.querySelector<HTMLElement>('[data-contact-email]')
+  if (address) stage.use(magnetic(address, { inner: 'span', strength: 0.18, radius: 90 }))
+  const button = document.querySelector<HTMLButtonElement>('[data-copy]')
+  const status = document.querySelector<HTMLElement>('[data-copy-status]')
+  if (!button || !status) return
+  const label = button.textContent ?? ''
+  let timer: number | undefined
+  const copy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      return true
+    } catch {
+      // No Clipboard API (or no permission): the old way, through a selection.
+      const field = document.createElement('textarea')
+      field.value = text
+      field.setAttribute('readonly', '')
+      field.style.cssText = 'position:fixed;opacity:0;pointer-events:none'
+      document.body.append(field)
+      field.select()
+      const done = document.execCommand('copy')
+      field.remove()
+      return done
+    }
+  }
+  button.addEventListener('click', async () => {
+    if (!(await copy(button.dataset.copy ?? ''))) return
+    const copied = button.dataset.copied ?? ''
+    button.textContent = copied
+    status.textContent = copied
+    window.clearTimeout(timer)
+    timer = window.setTimeout(() => {
+      button.textContent = label
+      status.textContent = ''
+    }, 2400)
+  })
+}
+
+// ---------------------------------------------------------------------
 // Code block: a tiny highlighter (keywords, strings, comments).
 // ---------------------------------------------------------------------
 function highlight() {
@@ -193,6 +234,7 @@ initStatement(stage)
 initDemos(stage, readTiers())
 initNext(stage)
 initWork(stage)
+initContact(stage)
 highlight()
 initLanguages()
 stage.refresh()
