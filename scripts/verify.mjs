@@ -10,10 +10,11 @@
 import { createReadStream, existsSync, mkdirSync, statSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { extname, join, normalize } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 
-const ROOT = new URL('../dist/', import.meta.url).pathname
-const OUT = new URL('../verify-output/', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('../dist/', import.meta.url))
+const OUT = fileURLToPath(new URL('../verify-output/', import.meta.url))
 mkdirSync(OUT, { recursive: true })
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.woff': 'font/woff', '.png': 'image/png', '.webp': 'image/webp', '.xml': 'application/xml', '.txt': 'text/plain' }
 
@@ -109,6 +110,48 @@ const inView = (page, id) =>
     const r = el.getBoundingClientRect()
     return r.left >= -1 && r.right <= innerWidth + 1 && r.top >= -1 && r.bottom <= innerHeight + 1
   })
+
+// ---------------------------------------------------------------------
+// Commissions: the studio's address, in its section, the nav and the footer.
+// ---------------------------------------------------------------------
+const EMAIL = 'itsmetti@proton.me'
+async function checkContact(page, device) {
+  await at(page, '#contact', 0)
+  await page.waitForTimeout(700)
+  const c = await page.evaluate(() => {
+    const email = document.querySelector('#contact .contact-email')
+    const r = email?.getBoundingClientRect()
+    return {
+      text: email?.textContent?.trim(),
+      href: email?.getAttribute('href') ?? '',
+      dir: email ? getComputedStyle(email).direction : '',
+      fits: r ? r.left >= -1 && r.right <= innerWidth + 1 : false,
+      footer: document.querySelector('.footer-links .footer-email')?.getAttribute('href') ?? '',
+      nav: !!document.querySelector('.nav-links a[href="#contact"]'),
+    }
+  })
+  const subject = decodeURIComponent(c.href.split('?subject=')[1] ?? '')
+  c.text === EMAIL && c.href.startsWith(`mailto:${EMAIL}?subject=`) && subject.length > 5
+    ? pass(`contact section: mailto ${EMAIL} (subject “${subject}”)`)
+    : fail(`contact section: “${c.text}” → ${c.href}`)
+  c.dir === 'ltr' && c.fits ? pass('the address reads left to right and fits the screen') : fail(`address dir ${c.dir}, fits ${c.fits}`)
+  c.footer.startsWith(`mailto:${EMAIL}`) ? pass('footer links the address') : fail(`footer address ${c.footer}`)
+  if (device === 'desktop') c.nav ? pass('nav links to the contact section') : fail('no contact link in the nav')
+}
+
+/** The copy button puts the address on the clipboard and says so. */
+async function checkCopy(page, context) {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  await page.click('[data-copy]')
+  await page.waitForTimeout(300)
+  const r = await page.evaluate(async () => ({
+    clip: await navigator.clipboard.readText(),
+    label: document.querySelector('[data-copy]')?.textContent,
+    status: document.querySelector('[data-copy-status]')?.textContent,
+    copied: document.querySelector('[data-copy]')?.dataset.copied,
+  }))
+  r.clip === EMAIL && r.label === r.copied && r.status === r.copied ? pass(`copy button copies the address (“${r.copied}”)`) : fail(`copy: clipboard “${r.clip}”, label “${r.label}”, status “${r.status}”`)
+}
 
 async function checkNext(page, lang, device) {
   const rtl = spec(lang).dir === 'rtl'
@@ -284,7 +327,7 @@ async function checkNext(page, lang, device) {
 try {
   const browser = await chromium.launch()
   for (const { lang, path, dir, locale } of LANGS) {
-    await visit(browser, `Desktop ${lang.toUpperCase()} 1440×900`, path, { viewport: { width: 1440, height: 900 }, locale }, async (page) => {
+    await visit(browser, `Desktop ${lang.toUpperCase()} 1440×900`, path, { viewport: { width: 1440, height: 900 }, locale }, async (page, context) => {
       const meta = await page.evaluate(() => ({
         lang: document.documentElement.lang,
         dir: document.documentElement.dir,
@@ -302,7 +345,7 @@ try {
       const focused = await page.evaluate(() => document.activeElement?.className)
       focused?.includes('skip-link') ? pass('first Tab focuses the skip link') : fail(`first Tab focused ${focused}`)
       await page.evaluate(() => document.activeElement?.blur?.())
-      for (const [name, sel, f] of [['hero', '#top', 0], ['statement', '#statement', 0.15], ['engine', '#engine', 0.3], ['work', '#work', 0.1], ['studio', '#studio', 0.05], ['start', '#start', 0.1]]) {
+      for (const [name, sel, f] of [['hero', '#top', 0], ['statement', '#statement', 0.15], ['engine', '#engine', 0.3], ['work', '#work', 0.1], ['studio', '#studio', 0.05], ['start', '#start', 0.1], ['contact', '#contact', 0]]) {
         await at(page, sel, f)
         await page.waitForTimeout(1100)
         await page.screenshot({ path: `${OUT}${lang}-desktop-${name}.png` })
@@ -310,6 +353,15 @@ try {
       pass(`screenshots → verify-output/${lang}-desktop-*.png`)
       const codeOverflow = await page.$eval('.code', (el) => el.scrollWidth - el.clientWidth)
       codeOverflow <= 1 ? pass('code sample fits without scrolling') : fail(`code sample overflows by ${codeOverflow}px`)
+      await checkContact(page, 'desktop')
+      await checkCopy(page, context)
+      // The nav's contact link scrolls to the section.
+      await at(page, '#top', 0)
+      await page.waitForTimeout(400)
+      await page.click('.nav-links a[href="#contact"]')
+      await page.waitForTimeout(2200)
+      const contactTop = await page.$eval('#contact', (el) => el.getBoundingClientRect().top)
+      Math.abs(contactTop) < 4 ? pass('nav link scrolls to the contact section') : fail(`contact section top after the nav link: ${contactTop.toFixed(0)}px`)
       await checkNext(page, lang, 'desktop')
       // The language switch lists every language, marks this one, and leads to the next.
       const switcher = await page.$$eval('.lang-switch .ls-item', (items) => items.map((i) => [i.getAttribute('lang'), i.getAttribute('aria-current')]))
@@ -332,6 +384,17 @@ try {
         await page.screenshot({ path: `${OUT}${lang}-mobile-${name}.png` })
       }
       pass(`screenshots → verify-output/${lang}-mobile-*.png`)
+      await checkContact(page, 'mobile')
+      await page.screenshot({ path: `${OUT}${lang}-mobile-contact.png` })
+      // The smallest phones: the address still fits, nothing overflows.
+      await page.setViewportSize({ width: 320, height: 640 })
+      await page.waitForTimeout(600)
+      await checkContact(page, 'mobile')
+      const narrow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+      narrow <= 1 ? pass('no horizontal overflow at 320 px') : fail(`horizontal overflow at 320 px: ${narrow}px`)
+      await page.screenshot({ path: `${OUT}${lang}-mobile-320-contact.png` })
+      await page.setViewportSize({ width: 390, height: 844 })
+      await page.waitForTimeout(600)
       await checkNext(page, lang, 'mobile')
     })
   }

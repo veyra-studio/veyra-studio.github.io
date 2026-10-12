@@ -16,6 +16,7 @@ TypeScript is pinned to 6.x here because `@astrojs/check` does not support 7 yet
 
 ## Rules
 
+- Commissions go to one address, `email` in `src/i18n/content.ts` (itsmetti@proton.me): the «Commissions» section (`#contact`), the nav link and the footer all read it from there, with a mail subject per language (`contact.subject`).
 - All copy lives in `src/i18n/content.ts`; write each language natively (Persian: ZWNJ, Persian digits, «٫», «»; Arabic: Arabic-Indic digits ٠١٢, «٫», «», ، ؛; Turkish: ı/İ, decimal comma). Numbers go through `localNumber()` in `src/i18n/numerals.ts`.
 - Adding a language: add it to `Lang`, `langs`, `content`, `paths` (and `isRtl` if RTL), add `src/pages/<lang>/index.astro`, `public/og-<lang>.png`, the sitemap, the `LANGS` list in `scripts/verify.mjs` and the deploy workflow's build check.
 - One `Page.astro` renders every language; Arabic-script design goes in CSS via `:root:is(:lang(fa), :lang(ar))` (Persian and Arabic share faces and settings; Turkish shares English's) — never ship a mirrored-only layout.

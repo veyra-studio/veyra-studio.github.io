@@ -7,7 +7,7 @@ The multilingual home of **Veyra Studio** and the **Veyra** creative web experie
 - العربية: **https://veyra-studio.github.io/ar/**
 - Türkçe: **https://veyra-studio.github.io/tr/**
 
-The site introduces the engine and its philosophy, runs the engine live (every demo on the page is Veyra Core at work), features the [Abali showcase](https://veyra-studio.github.io/abali/), and links to the [engine source](https://github.com/veyra-studio/veyra-core).
+The site introduces the engine and its philosophy, runs the engine live (every demo on the page is Veyra Core at work), features the [Abali showcase](https://veyra-studio.github.io/abali/), links to the [engine source](https://github.com/veyra-studio/veyra-core), and takes commissions: [itsmetti@proton.me](mailto:itsmetti@proton.me).
 
 ## Design
 
@@ -15,6 +15,7 @@ The site introduces the engine and its philosophy, runs the engine live (every d
 - **Two scripts, four languages, designed separately.** English and Turkish set Instrument Serif with Geist; Persian and Arabic set Markazi Text with Vazirmatn — larger optical sizes, looser leading, no letter-spacing, RTL composition. Each language writes numbers its own way: Persian digits (۰۱۲) and Arabic-Indic digits (٠١٢) with «٫», the Turkish decimal comma. Copy is written for each language, not machine-paired.
 - **Language switching** — a four-way switch (EN · فا · ع · TR) using cross-document View Transitions: the new language wipes in along its own reading direction and the wordmark morphs between «ویرا», «فيرا» and “Veyra”. Browsers without support navigate normally. Visitors whose browser prefers another of the four languages get a one-line hint.
 - **New in 0.2 — a row that travels.** The engine's 0.2 capabilities sit in a horizontal section (itself `horizontal()`): vertical scrolling moves seven panels sideways — leftward in English and Turkish, rightward in Persian and Arabic so they arrive in reading order — and settles on a panel. Each panel is a live demo: kashida stretching Persian words, a draggable carousel, a FLIP grid, a magnetic link and a tilt card, script-aware scrambling, and a WebGL2 shader built from `@veyra/core/glsl`. A marquee band follows, running in the reading direction. Under reduced motion nothing in it moves on its own.
+- **Commissions.** Before the footer, a section in each language says what the studio makes and gives the address in large type — a mail link with a subject in the page's language, a copy button that says it copied, a magnetic lean toward the pointer. The nav links to it; the footer repeats the address.
 - **Restraint.** Paper, ink and one signal color; motion that explains (the engine demos) rather than decorates.
 
 ## Develop
