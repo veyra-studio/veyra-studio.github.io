@@ -51,13 +51,8 @@ async function initHero(stage: Stage) {
   const wordmark = document.querySelector<HTMLElement>('[data-wordmark]')
   if (!hero || !canvas || !wordmark) return
   await document.fonts.ready
-  const veil = createVeil(stage, canvas, wordmark)
-  stage.scene(hero, {
-    start: 'top top',
-    end: 'bottom top',
-    onEnterBack: () => veil.setActive(true),
-    onLeave: () => veil.setActive(false),
-  })
+  // It draws only while it can be seen (it watches itself).
+  createVeil(stage, canvas, wordmark)
   if (!stage.reducedMotion.value) {
     const tl = stage.timeline()
     tl.fromTo(canvas, { opacity: 0 }, { opacity: 1 }, { duration: 1.6, ease: 'glide' }, 0)
@@ -91,21 +86,22 @@ function initStatement(stage: Stage) {
 }
 
 // ---------------------------------------------------------------------
-// Work: gentle parallax inside the case visual.
+// Work: gentle parallax inside each case's visual.
 // ---------------------------------------------------------------------
 function initWork(stage: Stage) {
-  const img = document.querySelector<HTMLImageElement>('[data-parallax]')
-  const visual = document.querySelector<HTMLElement>('.case-visual')
-  if (!img || !visual) return
-  img.addEventListener('error', () => (img.style.display = 'none'))
-  stage.scene(visual, {
-    start: 'top bottom',
-    end: 'bottom top',
-    onProgress(p) {
-      if (stage.reducedMotion.value) return
-      img.style.setProperty('--shift', `${(-11 + p * 10).toFixed(2)}%`)
-    },
-  })
+  for (const visual of document.querySelectorAll<HTMLElement>('.case-visual')) {
+    const img = visual.querySelector<HTMLImageElement>('[data-parallax]')
+    if (!img) continue
+    img.addEventListener('error', () => (img.style.display = 'none'))
+    stage.scene(visual, {
+      start: 'top bottom',
+      end: 'bottom top',
+      onProgress(p) {
+        if (stage.reducedMotion.value) return
+        img.style.setProperty('--shift', `${(-11 + p * 10).toFixed(2)}%`)
+      },
+    })
+  }
 }
 
 // ---------------------------------------------------------------------

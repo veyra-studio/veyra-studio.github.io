@@ -72,7 +72,7 @@ function loopDemo(stage: Stage, root: HTMLElement, visible: () => boolean) {
 }
 
 /** Drag the dot; on release an analytic spring brings it home. */
-function springDemo(stage: Stage, root: HTMLElement) {
+function springDemo(stage: Stage, root: HTMLElement, visible: () => boolean) {
   const box = root.querySelector<HTMLElement>('[data-spring]')!
   const dot = root.querySelector<HTMLElement>('[data-dot]')!
   const trail = root.querySelector<HTMLCanvasElement>('[data-trail]')!
@@ -119,11 +119,16 @@ function springDemo(stage: Stage, root: HTMLElement) {
     e.preventDefault()
   })
 
+  // Drawn while it shows; at rest, once the trail has drawn itself into the anchor, the last frame stays true.
+  let restFrames = 0
   stage.onFrame((f) => {
     if (!dragging) {
       sx.step(f.delta)
       sy.step(f.delta)
     }
+    if (!visible()) return
+    restFrames = !dragging && sx.settled && sy.settled ? restFrames + 1 : 0
+    if (restFrames > 92) return
     dot.style.transform = `translate3d(${sx.value}px, ${sy.value}px, 0)`
     points.push([sx.value, sy.value])
     if (points.length > 90) points.shift()
@@ -227,7 +232,7 @@ export function initDemos(stage: Stage, tiers: Record<string, string>): void {
   const type = byId('type')
   const quality = byId('quality')
   if (loop) loopDemo(stage, loop, vis(loop))
-  if (motion) springDemo(stage, motion)
+  if (motion) springDemo(stage, motion, vis(motion))
   if (scroll) scrollDemo(stage, scroll)
   if (type) typeDemo(stage, type, vis(type))
   if (quality) qualityDemo(stage, quality, tiers)

@@ -1423,6 +1423,16 @@ html[data-reduced-motion] .np-replay {
   gap: clamp(2rem, 5vw, 5rem);
   align-items: end;
 }
+.case + .case {
+  margin-top: clamp(6rem, 14vh, 10rem);
+}
+/* Every other case turns round: its picture on the far side. */
+.case:nth-of-type(even) {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+}
+.case:nth-of-type(even) .case-visual {
+  order: 2;
+}
 .case-visual {
   position: relative;
   display: block;
@@ -1455,6 +1465,10 @@ html[data-reduced-motion] .np-replay {
   font-weight: 700;
   font-size: clamp(1.5rem, 3vw, 3rem);
 }
+.case-visual-fallback :lang(en) {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+}
 .case-no {
   margin: 0 0 0.6rem;
   font-family: var(--mono);
@@ -1480,16 +1494,28 @@ html[data-reduced-motion] .np-replay {
 }
 .case-tagline {
   margin: 0.6rem 0 1.4rem;
-  font-family: 'Markazi Text Variable', serif;
-  font-weight: 600;
   font-size: 1.5rem;
   line-height: 1.6;
 }
-.case-tagline-en {
+/* The case's line in its own script… */
+.case-line {
+  font-family: 'Markazi Text Variable', serif;
+  font-weight: 600;
+}
+.case-line:lang(en) {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+}
+/* …and the page's words for it. */
+.case-translation {
   font-family: 'Instrument Serif', serif;
   font-weight: 400;
   font-style: italic;
   color: var(--muted);
+}
+.case-translation:is(:lang(fa), :lang(ar)) {
+  font-family: 'Markazi Text Variable', serif;
+  font-style: normal;
 }
 .case-body {
   margin: 0;
@@ -2023,8 +2049,12 @@ html:active-view-transition-type(to-ltr)::view-transition-old(root) {
     border-inline-end: 0;
   }
   .case,
+  .case:nth-of-type(even),
   .start {
     grid-template-columns: 1fr;
+  }
+  .case:nth-of-type(even) .case-visual {
+    order: 0;
   }
   .parts,
   .principles {

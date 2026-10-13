@@ -20,7 +20,15 @@ export const links = {
   site: 'https://github.com/veyra-studio/veyra-studio.github.io',
   abaliRepo: 'https://github.com/veyra-studio/abali',
   abali: 'https://veyra-studio.github.io/abali/',
+  durexRepo: 'https://github.com/veyra-studio/durex',
+  durex: 'https://veyra-studio.github.io/durex/',
   org: 'https://github.com/veyra-studio',
+}
+
+/** Each case's site, source, image (a capture of the site) and its line in the original language. */
+export const cases: Record<CaseId, { url: string; repo: string; image: string; line: string; lineLang: Lang }> = {
+  abali: { url: links.abali, repo: links.abaliRepo, image: '/work/abali-hero.webp', line: 'خنکی صدا دارد.', lineLang: 'fa' },
+  durex: { url: links.durex, repo: links.durexRepo, image: '/work/durex-hero.webp', line: 'Annoying, isn’t it?', lineLang: 'en' },
 }
 
 /** Where commissions go. */
@@ -43,6 +51,20 @@ export interface NextPanel {
   api: string
   title: string
   body: string
+}
+
+export type CaseId = 'abali' | 'durex'
+
+/** A case study's copy in one language (its site, source and image are in `cases`). */
+export interface Case {
+  id: CaseId
+  case: string
+  title: string
+  /** The case's line, in this language (shown beside the original unless it is this language). */
+  tagline: string
+  body: string
+  facts: Array<[string, string]>
+  disclaimer: string
 }
 
 export interface Content {
@@ -96,14 +118,9 @@ export interface Content {
   }
   work: {
     kicker: string
-    case: string
-    title: string
-    tagline: string
-    body: string
-    facts: Array<[string, string]>
     cta: string
     source: string
-    disclaimer: string
+    cases: Case[]
   }
   studio: {
     kicker: string
@@ -211,19 +228,38 @@ export const en: Content = {
   },
   work: {
     kicker: 'Work',
-    case: 'Case 001',
-    title: 'Abali',
-    tagline: 'Cool has a sound.',
-    body: 'A Persian, right-to-left campaign concept for Doogh Abali, the carbonated yogurt drink in a glass bottle. Cool has a sound — opening a cold Abali is a handful of them: the opener prying off the crown cap, the gas escaping, the first gulps, the sigh of relief. The film stretches them into a scroll: a bottle rebuilt from photographs of the real one, a cap that snaps off and clatters to the floor, foam that boils over and turns to snow on the mountains around Abali, and a sofreh that fills dish by dish.',
-    facts: [
-      ['Language', 'Persian, RTL'],
-      ['Built with', 'Veyra Core + three.js'],
-      ['Assets', 'All generated live — no photos, no model files'],
-      ['Sound', 'Synthesized, on by default'],
-    ],
     cta: 'Open the experience',
     source: 'Source',
-    disclaimer: 'An independent, unofficial concept. Not affiliated with the maker of Doogh Abali.',
+    cases: [
+      {
+        id: 'abali',
+        case: 'Case 001',
+        title: 'Abali',
+        tagline: 'Cool has a sound.',
+        body: 'A Persian, right-to-left campaign concept for Doogh Abali, the carbonated yogurt drink in a glass bottle. Cool has a sound — opening a cold Abali is a handful of them: the opener prying off the crown cap, the gas escaping, the first gulps, the sigh of relief. The film stretches them into a scroll: a bottle rebuilt from photographs of the real one, a cap that snaps off and clatters to the floor, foam that boils over and turns to snow on the mountains around Abali, and a sofreh that fills dish by dish.',
+        facts: [
+          ['Language', 'Persian, RTL'],
+          ['Built with', 'Veyra Core + three.js'],
+          ['Assets', 'All generated live — no photos, no model files'],
+          ['Sound', 'Synthesized, on by default'],
+        ],
+        disclaimer: 'An independent, unofficial concept. Not affiliated with the maker of Doogh Abali.',
+      },
+      {
+        id: 'durex',
+        case: 'Case 002',
+        title: 'Durex',
+        tagline: 'Annoying, isn’t it?',
+        body: 'An English campaign concept for Durex Invisible, played in zero gravity. It opens with a baby crying, then the punchline. Foil packets drift and knock into each other; one tears open, and the ring unrolls into a sheer sheath you blow up like a balloon — 18 litres is the international standard, about 40 what Durex says a typical one holds. Let it go and it shoots round the page, out one side and back in the other, bouncing off the headlines; tie it, and it follows you to the water test and a sky full of balloons.',
+        facts: [
+          ['Language', 'English, LTR'],
+          ['Built with', 'Veyra Core + three.js — no photos, no model files'],
+          ['Physics', 'Packets that collide; a balloon that bounces off the page’s own headlines'],
+          ['Sound', 'Natural recordings — it asks before it plays'],
+        ],
+        disclaimer: 'An independent, unofficial concept. Not commissioned by, affiliated with or endorsed by Reckitt or Durex.',
+      },
+    ],
   },
   studio: {
     kicker: 'Studio',
@@ -341,19 +377,38 @@ export const fa: Content = {
   },
   work: {
     kicker: 'کارها',
-    case: 'نمونه‌کار ۰۰۱',
-    title: 'آبعلی',
-    tagline: 'خنکی صدا دارد.',
-    body: 'طرحی مفهومی، فارسی و راست‌به‌چپ برای دوغ گازدارِ آبعلی. خنکی صدا دارد؛ باز کردنِ یک آبعلیِ سرد چند صداست: دربازکن که درِ تاجی را بلند می‌کند، گازی که بیرون می‌زند، قلپِ اول و «آخیش». فیلم همین صداها را با اسکرول کش می‌دهد: بطری‌ای که از روی عکس‌های محصولِ واقعی ساخته شده، دری که می‌پرد و روی زمین می‌افتد، کفی که سر می‌رود و برفِ کوه‌های آبعلی می‌شود، و سفره‌ای که بشقاب‌به‌بشقاب چیده می‌شود.',
-    facts: [
-      ['زبان', 'فارسی، راست‌به‌چپ'],
-      ['ساخته‌شده با', 'هستهٔ ویرا و three.js'],
-      ['تصویرها', 'همه زنده با کد ساخته می‌شوند؛ بی‌عکس، بی‌فایلِ سه‌بعدی'],
-      ['صدا', 'ساخته‌شده با کد، از اول روشن'],
-    ],
     cta: 'تجربه را باز کنید',
     source: 'کد منبع',
-    disclaimer: 'طرحی مستقل و غیررسمی؛ بدون ارتباط با تولیدکنندهٔ دوغ آبعلی.',
+    cases: [
+      {
+        id: 'abali',
+        case: 'نمونه‌کار ۰۰۱',
+        title: 'آبعلی',
+        tagline: 'خنکی صدا دارد.',
+        body: 'طرحی مفهومی، فارسی و راست‌به‌چپ برای دوغ گازدارِ آبعلی. خنکی صدا دارد؛ باز کردنِ یک آبعلیِ سرد چند صداست: دربازکن که درِ تاجی را بلند می‌کند، گازی که بیرون می‌زند، قلپِ اول و «آخیش». فیلم همین صداها را با اسکرول کش می‌دهد: بطری‌ای که از روی عکس‌های محصولِ واقعی ساخته شده، دری که می‌پرد و روی زمین می‌افتد، کفی که سر می‌رود و برفِ کوه‌های آبعلی می‌شود، و سفره‌ای که بشقاب‌به‌بشقاب چیده می‌شود.',
+        facts: [
+          ['زبان', 'فارسی، راست‌به‌چپ'],
+          ['ساخته‌شده با', 'هستهٔ ویرا و three.js'],
+          ['تصویرها', 'همه زنده با کد ساخته می‌شوند؛ بی‌عکس، بی‌فایلِ سه‌بعدی'],
+          ['صدا', 'ساخته‌شده با کد، از اول روشن'],
+        ],
+        disclaimer: 'طرحی مستقل و غیررسمی؛ بدون ارتباط با تولیدکنندهٔ دوغ آبعلی.',
+      },
+      {
+        id: 'durex',
+        case: 'نمونه‌کار ۰۰۲',
+        title: 'دورکس',
+        tagline: 'کلافه‌کننده است، نه؟',
+        body: 'طرحی مفهومی و انگلیسی برای کاندومِ «دورکس اینویزیبل»، در بی‌وزنی. با گریهٔ یک نوزاد شروع می‌شود و بعد، شوخیِ اصلی. بسته‌های فویلی در هوا معلق‌اند و به هم می‌خورند؛ یکی پاره می‌شود و حلقه باز می‌شود: لایه‌ای نازک و براق که مثل بادکنک بادش می‌کنید — ۱۸ لیتر استانداردِ بین‌المللی است و به گفتهٔ دورکس، یک کاندومِ معمولی حدودِ ۴۰ لیتر هوا را تاب می‌آورد. رهایش کنید تا در صفحه بچرخد، از یک لبه بیرون برود و از لبهٔ دیگر برگردد و به تیترها بخورد؛ یا گره‌اش بزنید تا همراهتان تا آزمونِ آب و آسمانی پر از بادکنک بیاید.',
+        facts: [
+          ['زبان', 'انگلیسی، چپ‌به‌راست'],
+          ['ساخته‌شده با', 'هستهٔ ویرا و three.js؛ بی‌عکس، بی‌فایلِ سه‌بعدی'],
+          ['فیزیک', 'بسته‌هایی که به هم می‌خورند؛ بادکنکی که از تیترهای خودِ صفحه کمانه می‌کند'],
+          ['صدا', 'صداهای ضبط‌شدهٔ واقعی؛ پیش از پخش اجازه می‌گیرد'],
+        ],
+        disclaimer: 'طرحی مستقل و غیررسمی؛ سفارشِ Reckitt یا دورکس نیست و با آن‌ها ارتباطی ندارد.',
+      },
+    ],
   },
   studio: {
     kicker: 'استودیو',
@@ -471,19 +526,38 @@ export const ar: Content = {
   },
   work: {
     kicker: 'الأعمال',
-    case: 'العمل ٠٠١',
-    title: 'آبعلي',
-    tagline: 'للانتعاش صوت.',
-    body: 'تصوّر لحملة فارسية من اليمين إلى اليسار لـ«دوغ آبعلي»، مشروب اللبن الغازي في زجاجة. للانتعاش صوت — وفتح زجاجة آبعلي باردة حفنة من الأصوات: الفتّاحة وهي تنتزع الغطاء المعدني، والغاز وهو يفلت، والرشفات الأولى، وتنهيدة الارتياح. يمدّ الفيلم هذه الأصوات على امتداد التمرير: زجاجة أُعيد بناؤها من صور الزجاجة الحقيقية، وغطاء يقفز ويرتطم بالأرض، ورغوة تفيض فتصير ثلجًا على الجبال المحيطة بآبعلي، وسفرة تمتلئ طبقًا بعد طبق.',
-    facts: [
-      ['اللغة', 'الفارسية، من اليمين إلى اليسار'],
-      ['بُني بـ', 'نواة فيرا و three.js'],
-      ['الصور', 'كلها تُولَّد حيًّا — بلا صور فوتوغرافية ولا ملفات نماذج'],
-      ['الصوت', 'مُركَّب بالشيفرة، يعمل من البداية'],
-    ],
     cta: 'افتح التجربة',
     source: 'الشيفرة المصدرية',
-    disclaimer: 'تصوّر مستقل وغير رسمي، لا صلة له بالشركة المصنّعة لـ«دوغ آبعلي».',
+    cases: [
+      {
+        id: 'abali',
+        case: 'العمل ٠٠١',
+        title: 'آبعلي',
+        tagline: 'للانتعاش صوت.',
+        body: 'تصوّر لحملة فارسية من اليمين إلى اليسار لـ«دوغ آبعلي»، مشروب اللبن الغازي في زجاجة. للانتعاش صوت — وفتح زجاجة آبعلي باردة حفنة من الأصوات: الفتّاحة وهي تنتزع الغطاء المعدني، والغاز وهو يفلت، والرشفات الأولى، وتنهيدة الارتياح. يمدّ الفيلم هذه الأصوات على امتداد التمرير: زجاجة أُعيد بناؤها من صور الزجاجة الحقيقية، وغطاء يقفز ويرتطم بالأرض، ورغوة تفيض فتصير ثلجًا على الجبال المحيطة بآبعلي، وسفرة تمتلئ طبقًا بعد طبق.',
+        facts: [
+          ['اللغة', 'الفارسية، من اليمين إلى اليسار'],
+          ['بُني بـ', 'نواة فيرا و three.js'],
+          ['الصور', 'كلها تُولَّد حيًّا — بلا صور فوتوغرافية ولا ملفات نماذج'],
+          ['الصوت', 'مُركَّب بالشيفرة، يعمل من البداية'],
+        ],
+        disclaimer: 'تصوّر مستقل وغير رسمي، لا صلة له بالشركة المصنّعة لـ«دوغ آبعلي».',
+      },
+      {
+        id: 'durex',
+        case: 'العمل ٠٠٢',
+        title: 'ديوركس',
+        tagline: 'مزعج، أليس كذلك؟',
+        body: 'تصوّر لحملة إنجليزية لـ«ديوركس إنفيزيبل» في انعدام الجاذبية. يبدأ ببكاء رضيع، ثم تأتي النكتة. أكياس من الرقائق المعدنية تطفو ويصطدم بعضها ببعض؛ يُفتح أحدها فتنفرد الحلقة غشاءً رقيقًا لامعًا تنفخه كالبالون — المعيار الدولي ١٨ لترًا، وتقول ديوركس إن الواقي العادي يحتمل نحو ٤٠ لترًا. أفلِته فيدور في الصفحة، يخرج من طرف ويعود من الآخر مرتدًّا عن العناوين؛ أو اربطه فيرافقك إلى اختبار الماء وسماءٍ ملأى بالبالونات.',
+        facts: [
+          ['اللغة', 'الإنجليزية، من اليسار إلى اليمين'],
+          ['بُني بـ', 'نواة فيرا و three.js، بلا صور فوتوغرافية ولا ملفات نماذج'],
+          ['الفيزياء', 'أكياس تتصادم، وبالون يرتدّ عن عناوين الصفحة نفسها'],
+          ['الصوت', 'تسجيلات طبيعية، يستأذن قبل أن يُسمعك شيئًا'],
+        ],
+        disclaimer: 'تصوّر مستقل وغير رسمي، لم تطلبه Reckitt ولا ديوركس، ولا صلة له بهما.',
+      },
+    ],
   },
   studio: {
     kicker: 'الاستوديو',
@@ -601,19 +675,38 @@ export const tr: Content = {
   },
   work: {
     kicker: 'İşler',
-    case: 'Proje 001',
-    title: 'Abali',
-    tagline: 'Serinliğin bir sesi var.',
-    body: 'Cam şişedeki gazlı ayran Doogh Abali için Farsça, sağdan sola bir kampanya konsepti. Serinliğin bir sesi var — soğuk bir Abali’yi açmak bir avuç sestir: taç kapağı kaldıran açacak, kaçan gaz, ilk yudumlar, rahatlamış bir “oh”. Film bu sesleri kaydırmaya yayar: gerçek şişenin fotoğraflarından yeniden kurulmuş bir şişe, fırlayıp yere düşen bir kapak, taşan ve Abali’yi çevreleyen dağlarda kara dönüşen köpük ve tabak tabak dolan bir sofra.',
-    facts: [
-      ['Dil', 'Farsça, sağdan sola'],
-      ['Yapım', 'Veyra Core + three.js'],
-      ['Görseller', 'Hepsi canlı üretiliyor — fotoğraf yok, model dosyası yok'],
-      ['Ses', 'Sentezlenmiş, baştan açık'],
-    ],
     cta: 'Deneyimi açın',
     source: 'Kaynak',
-    disclaimer: 'Bağımsız, resmî olmayan bir konsept. Doogh Abali üreticisiyle herhangi bir bağlantısı yoktur.',
+    cases: [
+      {
+        id: 'abali',
+        case: 'Proje 001',
+        title: 'Abali',
+        tagline: 'Serinliğin bir sesi var.',
+        body: 'Cam şişedeki gazlı ayran Doogh Abali için Farsça, sağdan sola bir kampanya konsepti. Serinliğin bir sesi var — soğuk bir Abali’yi açmak bir avuç sestir: taç kapağı kaldıran açacak, kaçan gaz, ilk yudumlar, rahatlamış bir “oh”. Film bu sesleri kaydırmaya yayar: gerçek şişenin fotoğraflarından yeniden kurulmuş bir şişe, fırlayıp yere düşen bir kapak, taşan ve Abali’yi çevreleyen dağlarda kara dönüşen köpük ve tabak tabak dolan bir sofra.',
+        facts: [
+          ['Dil', 'Farsça, sağdan sola'],
+          ['Yapım', 'Veyra Core + three.js'],
+          ['Görseller', 'Hepsi canlı üretiliyor — fotoğraf yok, model dosyası yok'],
+          ['Ses', 'Sentezlenmiş, baştan açık'],
+        ],
+        disclaimer: 'Bağımsız, resmî olmayan bir konsept. Doogh Abali üreticisiyle herhangi bir bağlantısı yoktur.',
+      },
+      {
+        id: 'durex',
+        case: 'Proje 002',
+        title: 'Durex',
+        tagline: 'Can sıkıcı, değil mi?',
+        body: 'Durex Invisible için sıfır yerçekiminde geçen, İngilizce bir kampanya konsepti. Bir bebeğin ağlamasıyla açılıyor, ardından espri geliyor. Folyo paketler süzülüp birbirine çarpıyor; biri yırtılıyor ve halka, balon gibi şişirdiğiniz ince, parlak bir kılıfa dönüşüyor — uluslararası standart 18 litre, Durex’e göre sıradan bir prezervatif yaklaşık 40 litre taşıyor. Bırakırsanız sayfada döne döne uçar, bir kenardan çıkıp öbüründen girer, başlıklara çarpıp seker; bağlarsanız su testine ve balonlarla dolu bir gökyüzüne kadar size eşlik eder.',
+        facts: [
+          ['Dil', 'İngilizce, soldan sağa'],
+          ['Yapım', 'Veyra Core + three.js — fotoğraf yok, model dosyası yok'],
+          ['Fizik', 'Çarpışan paketler; sayfanın kendi başlıklarından seken bir balon'],
+          ['Ses', 'Doğal kayıtlar — çalmadan önce sorar'],
+        ],
+        disclaimer: 'Bağımsız, resmî olmayan bir konsept. Reckitt ya da Durex tarafından ısmarlanmamıştır, onlarla bir bağlantısı yoktur.',
+      },
+    ],
   },
   studio: {
     kicker: 'Stüdyo',

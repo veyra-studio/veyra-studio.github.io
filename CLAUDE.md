@@ -23,4 +23,5 @@ TypeScript is pinned to 6.x here because `@astrojs/check` does not support 7 yet
 - Use logical properties (`inset-inline-*`, `margin-inline-*`). Exception: elements with a vertical `writing-mode` resolve logical insets against their own axes — position a horizontal wrapper instead.
 - Keep `[hidden]` working on anything given a `display` value (`.x[hidden] { display: none }`).
 - The engine comes from veyra-core's `release` branch on GitHub; never patch it here. Engine changes reach this site on their own after they merge in veyra-core (dispatch or hourly check).
-- `public/work/abali-hero.webp` and `public/og-*.png` are captures of the real sites (regenerate after visual changes).
+- `public/work/*-hero.webp` (one per case, 1600×1000) and `public/og-*.png` are captures of the real sites (regenerate after visual changes). A case's copy is in each language's `work.cases`; its site, source, image and original line in `cases` (`src/i18n/content.ts`).
+- Nothing draws while it can't be seen: per-frame drawing stops off screen (`whenVisible` or the section's visibility) and when nothing moves. The hero's veil is WebGL (`src/scripts/veil.ts`) — a 2D canvas of thousands of path segments a frame kept the GPU busy and the page hanging; check `canvas.veil` with a GPU trace after changing it.

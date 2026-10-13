@@ -153,6 +153,34 @@ async function checkCopy(page, context) {
   r.clip === EMAIL && r.label === r.copied && r.status === r.copied ? pass(`copy button copies the address (“${r.copied}”)`) : fail(`copy: clipboard “${r.clip}”, label “${r.label}”, status “${r.status}”`)
 }
 
+// ---------------------------------------------------------------------
+// Work: every case with its picture, its live site and its source.
+// ---------------------------------------------------------------------
+const CASES = [
+  { id: 'abali', url: 'https://veyra-studio.github.io/abali/', repo: 'https://github.com/veyra-studio/abali' },
+  { id: 'durex', url: 'https://veyra-studio.github.io/durex/', repo: 'https://github.com/veyra-studio/durex' },
+]
+async function checkWork(page) {
+  // The pictures load lazily: bring each into view.
+  for (const { id } of CASES) {
+    await at(page, `[data-case="${id}"]`, 0)
+    await page.waitForTimeout(600)
+  }
+  await page.waitForFunction(() => [...document.querySelectorAll('.case-visual img')].every((img) => img.complete), null, { timeout: 10000 }).catch(() => {})
+  const found = await page.$$eval('.case', (els) =>
+    els.map((el) => ({
+      id: el.dataset.case,
+      title: el.querySelector('.case-title')?.textContent?.trim() ?? '',
+      live: el.querySelector('.case-ctas .btn-solid')?.getAttribute('href'),
+      repo: el.querySelector('.case-ctas .btn-line')?.getAttribute('href'),
+      image: el.querySelector('.case-visual img')?.naturalWidth ?? 0,
+      footer: !!document.querySelector(`.footer-links a[href="${el.querySelector('.case-visual')?.getAttribute('href')}"]`),
+    })),
+  )
+  const ok = found.length === CASES.length && CASES.every((c, i) => found[i].id === c.id && found[i].title && found[i].live === c.url && found[i].repo === c.repo && found[i].image > 0 && found[i].footer)
+  ok ? pass(`work: ${found.map((f) => f.title).join(', ')} — each with its picture, site, source and a footer link`) : fail(`work: ${JSON.stringify(found)}`)
+}
+
 async function checkNext(page, lang, device) {
   const rtl = spec(lang).dir === 'rtl'
   const shot = (name) => page.screenshot({ path: `${OUT}${lang}-${device}-new-${name}.png` })
@@ -334,23 +362,29 @@ try {
         hreflang: [...document.querySelectorAll('link[rel=alternate][hreflang]')].map((l) => l.getAttribute('hreflang')),
         h1: document.querySelector('h1')?.textContent?.trim(),
         veil: document.documentElement.classList.contains('veil-text'),
+        // A canvas answers getContext only for the kind of context it already has.
+        veilGl: (() => {
+          const c = document.querySelector('canvas.veil')
+          return !!(c?.getContext('webgl2') || c?.getContext('webgl'))
+        })(),
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       }))
       meta.lang === lang && meta.dir === dir ? pass(`lang="${lang}" dir="${dir}"`) : fail(`lang/dir ${meta.lang}/${meta.dir}`)
       ;[...LANGS.map((l) => l.lang), 'x-default'].every((h) => meta.hreflang.includes(h)) ? pass('hreflang alternates') : fail(`hreflang: ${meta.hreflang}`)
       meta.h1 ? pass(`h1 “${meta.h1}”`) : fail('missing h1')
-      meta.veil ? pass('woven wordmark active') : fail('veil did not initialise')
+      meta.veil ? pass(`woven wordmark active (${meta.veilGl ? 'WebGL' : 'still, 2D'})`) : fail('veil did not initialise')
       meta.overflow <= 1 ? pass('no horizontal overflow') : fail(`horizontal overflow ${meta.overflow}px`)
       await page.keyboard.press('Tab')
       const focused = await page.evaluate(() => document.activeElement?.className)
       focused?.includes('skip-link') ? pass('first Tab focuses the skip link') : fail(`first Tab focused ${focused}`)
       await page.evaluate(() => document.activeElement?.blur?.())
-      for (const [name, sel, f] of [['hero', '#top', 0], ['statement', '#statement', 0.15], ['engine', '#engine', 0.3], ['work', '#work', 0.1], ['studio', '#studio', 0.05], ['start', '#start', 0.1], ['contact', '#contact', 0]]) {
+      for (const [name, sel, f] of [['hero', '#top', 0], ['statement', '#statement', 0.15], ['engine', '#engine', 0.3], ['work', '#work', 0.1], ['work-2', '[data-case="durex"]', 0], ['studio', '#studio', 0.05], ['start', '#start', 0.1], ['contact', '#contact', 0]]) {
         await at(page, sel, f)
         await page.waitForTimeout(1100)
         await page.screenshot({ path: `${OUT}${lang}-desktop-${name}.png` })
       }
       pass(`screenshots → verify-output/${lang}-desktop-*.png`)
+      await checkWork(page)
       const codeOverflow = await page.$eval('.code', (el) => el.scrollWidth - el.clientWidth)
       codeOverflow <= 1 ? pass('code sample fits without scrolling') : fail(`code sample overflows by ${codeOverflow}px`)
       await checkContact(page, 'desktop')
@@ -378,7 +412,7 @@ try {
     await visit(browser, `Mobile ${lang.toUpperCase()} 390×844`, path, { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true }, async (page) => {
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
       overflow <= 1 ? pass('no horizontal overflow') : fail(`horizontal overflow ${overflow}px`)
-      for (const [name, sel, f] of [['hero', '#top', 0], ['engine', '#engine', 0.4], ['work', '#work', 0.05]]) {
+      for (const [name, sel, f] of [['hero', '#top', 0], ['engine', '#engine', 0.4], ['work', '#work', 0.05], ['work-2', '[data-case="durex"]', 0]]) {
         await at(page, sel, f)
         await page.waitForTimeout(1000)
         await page.screenshot({ path: `${OUT}${lang}-mobile-${name}.png` })
